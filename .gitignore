@@ -1,0 +1,9 @@
+# ignore  eclipse files
+./.metadata
+spacebsp1/.project
+spacebsp1/.classpath
+spacebsp1/.settings/
+
+
+# ignore binaries
+spacebsp1/target/
