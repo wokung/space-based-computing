@@ -1,5 +1,5 @@
 # ignore  eclipse files
-./.metadata
+.metadata
 spacebsp1/.project
 spacebsp1/.classpath
 spacebsp1/.settings/
