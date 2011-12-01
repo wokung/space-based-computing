@@ -5,10 +5,23 @@ package tu.spacebased.bsp1.workers;
  * Jede(r) Mitarbeiter/-in stellt für sich ein kleines unabhängiges Programm dar (mit eigener main-Methode) mit der Ausnahme von Produzenten/-innen, 
  * die von anderen Programmen erzeugt und verwendet werden können.
  * 
- * In der Logistik werden die vollständig getesteten Computer von Logistik-Mitarbeitern/-innen ausgeliefert (= als fertig markiert). 
- * Es werden nur funktionstüchtige Computer ausgeliefert. Defekte Computer werden in einem eigenen Lager gelagert.
+ * Um die Computer zusammenzusetzen, werden die Montage-Mitarbeiter/-innen benötigt. Sie nehmen 1 CPU, 1 Mainboard, 1, 2 oder 4 Stück RAM (je nach Verfügbarkeit)
+ * und eine Grafikkarte (falls vorhanden) und fertigen daraus einen Computer. Mainboards sollen dabei in FIFO-Ordnung verarbeitet werden (ältere zuerst!),
+ * damit sie nicht zu lange im Lager verstauben.
  * @author Kung
  */
-public class Logistician {
-
+public class Assembler {	
+	private String id;
+	
+	public static void main(String [] args)
+	{
+	}
+	
+	// GETTER SETTER
+	public String getId(){
+		return id;
+	}
+	public void setId(String id){
+		this.id = id;
+	}
 }

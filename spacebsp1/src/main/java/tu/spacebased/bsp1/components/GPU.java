@@ -1,6 +1,6 @@
 package tu.spacebased.bsp1.components;
 
-public class Ram implements Component {
+public class GPU implements Component {
 	/**
 	 * 
 	 */
@@ -11,7 +11,7 @@ public class Ram implements Component {
 	private final boolean defect;
 	
 	// Constructor
-	public Ram(int ID, int makerID, boolean defect) {
+	public GPU(int ID, int makerID, boolean defect) {
 		this.id = ID;
 		this.makerId = makerID;
 		this.defect = defect;
@@ -28,4 +28,5 @@ public class Ram implements Component {
 	public boolean isDefect() {
 		return defect;
 	}
+	
 }
