@@ -10,7 +10,13 @@ public class CPU implements Component {
 	private final int makerId;
 	private final boolean defect;
 	
-	// Constructor
+	/**
+	 * 
+	 * @param ID
+	 * @param makerID
+	 * @param defect
+	 */
+	
 	public CPU(int ID, int makerID, boolean defect) {
 		this.id = ID;
 		this.makerId = makerID;
