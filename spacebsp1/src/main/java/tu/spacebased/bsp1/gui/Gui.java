@@ -171,7 +171,7 @@ public class Gui{
 			e1.printStackTrace();
 		}
         
-        // TODO: I think we should call a 'UpdateFields()'-Method here, or such
+        // TODO: I think update and revalidation should move into an own thread
         while(true) {
 	        try {
 				readEntries = capi.take(cRef, FifoCoordinator.newSelector(), RequestTimeout.INFINITE, null);

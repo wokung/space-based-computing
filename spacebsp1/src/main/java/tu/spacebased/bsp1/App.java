@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import org.mozartspaces.capi3.AnyCoordinator;
 import org.mozartspaces.capi3.FifoCoordinator;
+import org.mozartspaces.capi3.LabelCoordinator;
 import org.mozartspaces.core.*;
 
 /**
@@ -45,27 +46,14 @@ public class App
 			e.printStackTrace();
 		}
         
-        int i = 0;
-        
-        for (;;i++)
-        {
-        	i = (i++)%200;
-        	
-        	Entry entry = new Entry(i, FifoCoordinator.newCoordinationData());
+        Entry entry = new Entry(0, LabelCoordinator.newCoordinationData("uniqueId"));
         	try {
 				capi.write(cRef, 0, null, entry);
 			} catch (MzsCoreException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-        	try {
-    			Thread.sleep(1000);
-    		} catch (InterruptedException e) {
-    			// TODO Auto-generated catch block
-    			e.printStackTrace();
-    		}
-        }
-        
+        	
         //capi.commitTransaction(tx);
     }
 }
