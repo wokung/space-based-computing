@@ -4,6 +4,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
+import org.mozartspaces.capi3.AnyCoordinator;
+import org.mozartspaces.capi3.ContainerNameNotAvailableException;
 import org.mozartspaces.capi3.FifoCoordinator;
 import org.mozartspaces.capi3.KeyCoordinator;
 import org.mozartspaces.capi3.LabelCoordinator;
@@ -18,10 +20,9 @@ public class App
     public static void main( String[] args )
     {   
     	//TODO: check if transactions would be useful
-        TransactionReference transaction = null;
-        
+            
 		ContainerReference cRef = null;
-        
+		
         URI uri = null;
 		try {
 			uri = new URI("xvsm://localhost:9877");
@@ -31,23 +32,41 @@ public class App
 		}
         String containerName = "store";
         
+        TransactionReference transaction = new TransactionReference("store", uri);
+        
         MzsCore core = DefaultMzsCore.newInstance();
         Capi capi = new Capi(core);
-        // TODO: man muss alle in einem container verwendeten selectoren beim erzeugen des containers angeben... 
-        // das sollten wir auch noch checken, kannst du das als TODO in app.java schreiben damit ich es nicht vergesse?
+
         try {
-        		cRef = CapiUtil.lookupOrCreateContainer(
+				cRef = capi.createContainer(
 					containerName,
 					uri,
-					Arrays.asList(new KeyCoordinator(), new LabelCoordinator(), new FifoCoordinator()),
+					MzsConstants.Container.UNBOUNDED,
 					null,
-					capi); //transaction could be a real TransactionRefernce if
+					Arrays.asList(new KeyCoordinator(), new LabelCoordinator(), new FifoCoordinator()),
+					null); //transaction could be a real TransactionRefernce if
 							// we need commit-style
+		} catch (ContainerNameNotAvailableException e) {
+			try {
+				cRef = capi.lookupContainer(containerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
+				capi.destroyContainer(cRef, null);
+				cRef = capi.createContainer(
+						containerName,
+						uri,
+						MzsConstants.Container.UNBOUNDED,
+						null,
+						Arrays.asList(new KeyCoordinator(), new LabelCoordinator(), new FifoCoordinator()),
+						null); //transaction could be a real TransactionRefernce if
+								// we need commit-style
+			} catch (MzsCoreException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		} catch (MzsCoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-        
+		}      
+
         Entry entry = new Entry(0, LabelCoordinator.newCoordinationData("uniqueId"));
         
     	try {
@@ -56,7 +75,7 @@ public class App
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	
+	
     	entry = new Entry(0, LabelCoordinator.newCoordinationData("uniqueWorkerId"));
         
     	try {
@@ -65,7 +84,6 @@ public class App
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        	
-        //capi.commitTransaction(tx);
+
     }
 }
