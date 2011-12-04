@@ -22,6 +22,8 @@ public class App
     	//TODO: check if transactions would be useful
             
 		ContainerReference cRef = null;
+		ContainerReference shittyRef = null;
+		ContainerReference sellRef = null;
 		
         URI uri = null;
 		try {
@@ -76,7 +78,7 @@ public class App
 		}
         
         try {
-			cRef = capi.createContainer(
+        	shittyRef = capi.createContainer(
 				shittyContainerName,
 				uri,
 				MzsConstants.Container.UNBOUNDED,
@@ -86,9 +88,9 @@ public class App
 						// we need commit-style
    		} catch (ContainerNameNotAvailableException e) {
    			try {
-   				cRef = capi.lookupContainer(shittyContainerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
-   				capi.destroyContainer(cRef, null);
-   				cRef = capi.createContainer(
+   				shittyRef = capi.lookupContainer(shittyContainerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
+   				capi.destroyContainer(shittyRef, null);
+   				shittyRef = capi.createContainer(
    						shittyContainerName,
    						uri,
    						MzsConstants.Container.UNBOUNDED,
@@ -106,7 +108,7 @@ public class App
    		}
         
         try {
-			cRef = capi.createContainer(
+        	sellRef = capi.createContainer(
 				sellContainerName,
 				uri,
 				MzsConstants.Container.UNBOUNDED,
@@ -116,9 +118,9 @@ public class App
 						// we need commit-style
    		} catch (ContainerNameNotAvailableException e) {
    			try {
-   				cRef = capi.lookupContainer(sellContainerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
-   				capi.destroyContainer(cRef, null);
-   				cRef = capi.createContainer(
+   				sellRef = capi.lookupContainer(sellContainerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
+   				capi.destroyContainer(sellRef, null);
+   				sellRef = capi.createContainer(
    						sellContainerName,
    						uri,
    						MzsConstants.Container.UNBOUNDED,
@@ -140,7 +142,8 @@ public class App
         Entry entry = new Entry(i, KeyCoordinator.newCoordinationData("uniqueId"));
         
     	try {
-			capi.write(cRef, MzsConstants.RequestTimeout.INFINITE, null, entry);
+			capi.write(cRef, MzsConstants.RequestTimeout.INFINITE, transaction, entry);
+			capi.commitTransaction(transaction);
 		} catch (MzsCoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

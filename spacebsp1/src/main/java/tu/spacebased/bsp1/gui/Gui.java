@@ -226,47 +226,49 @@ public class Gui implements ActionListener {
         	ArrayList<Component>readEntries;
         	
         	//This is quite ugly, but i don't care right now
-        	int part[] = partsTypeList.getSelectedIndices();
-        	Integer count = 0;
-        	for (int i = 0; i < part.length; i++) {
-	        	switch(i) {
-	        	case (1):
-	        		try {
-	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("CPU", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
-	    			} catch (MzsCoreException e) {
-	    				 System.out.println("transaction timeout. retry.");
-	                     continue;
-	    			}
-	        		count += readEntries.size();
-	        	case (2):
-	        		try {
-	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("GPU", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
-	    			} catch (MzsCoreException e) {
-	    				 System.out.println("transaction timeout. retry.");
-	                     continue;
-	    			}
-	        		count += readEntries.size();
-	        	case (3):
-	        		try {
-	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("RAM", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
-	    			} catch (MzsCoreException e) {
-	    				 System.out.println("transaction timeout. retry.");
-	                     continue;
-	    			}
-	        		count += readEntries.size();
-	        	case (4):
-	        		try {
-	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("MAINBOARD", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
-	    			} catch (MzsCoreException e) {
-	    				 System.out.println("transaction timeout. retry.");
-	                     continue;
-	    			}
-	        		count += readEntries.size();
+        	if (partsTypeList.getSelectedIndices() != null) {
+	        	int part[] = partsTypeList.getSelectedIndices();
+	        	Integer count = 0;
+	        	for (int i = 0; i < part.length; i++) {
+		        	switch(part[i]) {
+		        	case (1):
+		        		try {
+		    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("CPU", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
+		    			} catch (MzsCoreException e) {
+		    				 System.out.println("transaction timeout. retry.");
+		                     continue;
+		    			}
+		        		count += readEntries.size();
+		        	case (2):
+		        		try {
+		    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("GPU", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
+		    			} catch (MzsCoreException e) {
+		    				 System.out.println("transaction timeout. retry.");
+		                     continue;
+		    			}
+		        		count += readEntries.size();
+		        	case (3):
+		        		try {
+		    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("RAM", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
+		    			} catch (MzsCoreException e) {
+		    				 System.out.println("transaction timeout. retry.");
+		                     continue;
+		    			}
+		        		count += readEntries.size();
+		        	case (4):
+		        		try {
+		    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("MAINBOARD", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
+		    			} catch (MzsCoreException e) {
+		    				 System.out.println("transaction timeout. retry.");
+		                     continue;
+		    			}
+		        		count += readEntries.size();
+		        	}
 	        	}
+	        	
+	        	partsCount.setText(count.toString());
+	        	partsCount.repaint();
         	}
-        	
-        	partsCount.setText(count.toString());
-        	partsCount.repaint();
         	
         	//Computer lists
         	ArrayList<Computer>compEntries;
