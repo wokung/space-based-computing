@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.UUID;
 
 import org.mozartspaces.capi3.*;
@@ -127,6 +128,21 @@ public class Gui implements ActionListener {
 	    		  }
 	    	  } 
     	} );
+        
+        showDetailsShipped.addActionListener( new ActionListener() { 
+        	public void actionPerformed( ActionEvent e ) { 
+        		// modificate shippedProducts and showDetailsShipped
+        		
+        	}
+    	} );
+        
+        showDetailsFailed.addActionListener( new ActionListener() { 
+        	public void actionPerformed( ActionEvent e ) { 
+        		// modificate failedProducts and showDetailsFailed     
+        		
+        	}
+    	} );
+
         
         // frame.getContentPane().add(createWorkerButton);
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -273,29 +289,36 @@ public class Gui implements ActionListener {
     		}
         	
         	//Computer lists
-        	ArrayList<Computer>compEntries;
+        	ArrayList<Computer> compEntries = null;
         	
         	//This is quite ugly, but i don't care right now
 			try {
-				readEntries = capi.read(sellRef, AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
+				compEntries = capi.read(sellRef, AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
 			} catch (MzsCoreException e) {
 				 System.out.println("transaction timeout. retry.");
                  continue;
 			}
 			
 			//TODO: this is where i left
-			//shippedProducts = ;
+			Iterator it = compEntries.iterator();
+			while (it.hasNext()) {
+				Computer comp = (Computer) it.next();
+				// HERE GET COMPUTER ID ? list all computers as ids and show details when choosen ?
+				//int[] temp = { comp.getMakerID()};
+				
+			}
+			//shippedProducts = new JList(temp);
         	
         	//This is quite ugly, but i don't care right now
 			try {
-				readEntries = capi.read(shittyRef, AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
+				compEntries = capi.read(shittyRef, AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
 			} catch (MzsCoreException e) {
 				 System.out.println("transaction timeout. retry.");
                  continue;
 			}
 			
 			//TODO: this is where i left
-			//shippedProducts =;
+			//failedProducts =;
 
 	        
 	        try {

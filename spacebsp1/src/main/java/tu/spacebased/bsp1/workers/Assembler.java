@@ -90,7 +90,7 @@ public class Assembler {
 		// check if arguments are correct
 		try {
 			int luwid;
-			if (firstArg <= (luwid = getLastUniqueWorkerID())) {
+			if (firstArg >= (luwid = getLastUniqueWorkerID())) {
 				System.err.println("Please specify a WorkerId, that is not already initialized, the hightest workerId is " + luwid);
 			}
 		} catch (Exception e) {
