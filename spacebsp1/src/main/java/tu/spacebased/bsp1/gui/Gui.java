@@ -4,10 +4,13 @@ import javax.swing.*;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.UUID;
 
 import org.mozartspaces.capi3.*;
 import org.mozartspaces.core.Capi;
@@ -25,15 +28,19 @@ import tu.spacebased.bsp1.components.Computer;
 import tu.spacebased.bsp1.workers.Producer;
 import tu.spacebased.bsp1.workers.Producer.Components;
 
-public class Gui{
+public class Gui implements ActionListener {
 	/**
      * Create the GUI and show it.  For thread safety,
      * this method should be invoked from the
      * event-dispatching thread.
      */
+	public enum Components {
+	    CPU, GPU, MAINBOARD, RAM
+	}
 	
 	private static JFrame frame;
 	private static JPanel workerPanel = new JPanel(new FlowLayout());
+	private static JPanel notificationPanel = new JPanel(new FlowLayout());
 	private static JPanel partsPanel = new JPanel(new FlowLayout());
 	private static JPanel statisticsPanel1 = new JPanel(new FlowLayout());
 	private static JPanel statisticsPanel2 = new JPanel(new FlowLayout());
@@ -45,8 +52,9 @@ public class Gui{
 	private static JList shippedProducts;
 	private static JList failedProducts;
     private static JTextField errorRate = new JTextField("0.1");
-    private static JTextField workerName = new JTextField("Jesus");
+    private static JTextField workerName = new JTextField("20");
     private static JTextField partsCount = new JTextField("123");
+    private static JTextField failureNotification = new JTextField(50);
     
 	// For Container in space
 	static ContainerReference cRef = null;
@@ -69,7 +77,7 @@ public class Gui{
         partsCount.setEditable(false);
         
         // TODO: these are dummies - add actual 'ListModels' to the Lists 
-        String worker[] = {"Juan","Pablo","Miguel"};
+        String worker[] = {"CPU","GPU","MAINBOARD", "RAM"};
         String parts[] = {"CPU", "GPU", "MAINBOARD", "RAM"};
         String shipped[] = {};
         String failed[] = {};
@@ -89,6 +97,9 @@ public class Gui{
         workerPanel.add(errorRate, FlowLayout.LEFT);
         workerPanel.add(workerName, FlowLayout.LEFT);
         
+        failureNotification.setEditable(false);
+        notificationPanel.add(failureNotification, FlowLayout.LEFT);
+        
         // Components of the parts panel
         partsPanel.add(partsTypeList, FlowLayout.LEFT);
         partsPanel.add(partsCount);
@@ -98,8 +109,24 @@ public class Gui{
         statisticsPanel1.add(showDetailsShipped);
         statisticsPanel2.add(failedProducts);
         statisticsPanel2.add(showDetailsFailed);
-
-//        frame.getContentPane().add(createWorkerButton);
+        
+        // actions
+        createWorkerButton.addActionListener( new ActionListener() { 
+	    	  public void actionPerformed( ActionEvent e ) { 
+	    	      // (int quantity,int errorRate,Components component)
+	    		  if (workerList.getSelectedValue() != null) {
+		    		  if ((workerName.getText() != null) && (errorRate.getText() != null)) {
+		    			  createProducer(Integer.parseInt(workerName.getText()), Double.parseDouble(errorRate.getText()), getComponent(workerList.getSelectedValue().toString()));
+		    		  } else {
+		    			  failureNotification.setText("NO ERROR RATE OR NO QUANTITY INSERTED");
+		    		  }
+	    		  } else {
+	    			  failureNotification.setText("NO COMPONENT SELECTED");
+	    		  }
+	    	  } 
+    	} );
+        
+        // frame.getContentPane().add(createWorkerButton);
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 0.5;
         c.weighty = 0.5;
@@ -131,6 +158,10 @@ public class Gui{
         c.gridx = 1;
         c.gridy = 3;
         mainPanel.add(statisticsPanel2, c);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.gridy = 4;
+        mainPanel.add(notificationPanel, c);
         frame.getContentPane().add(mainPanel);
 //        frame.getContentPane().add(partsPanel);
 
@@ -284,12 +315,19 @@ public class Gui{
         }
     }
     
+    public static Producer.Components getComponent(String comp) {
+    	if (comp != null) {
+    		return Producer.Components.valueOf(comp);
+    	} else {
+    		return null;
+    	}
+    }
 //Create Producer
 
-    public void createProducer(int quantity,int errorRate,Components component) {
+    public static void createProducer(int quantity,double errorRate,tu.spacebased.bsp1.workers.Producer.Components components) {
     	
     	String makerID;
-    
+    	/**
 		ArrayList<String>readId = null;
 		
 		try {
@@ -307,10 +345,18 @@ public class Gui{
 		}
 		
 		makerID = readId.get(0);
-		
-		Producer prod = new Producer(quantity, makerID, errorRate, component);
+		*/
+    	UUID uid= UUID.randomUUID();
+    	makerID = uid.toString();
+		Producer prod = new Producer(quantity, makerID, errorRate, components);
 		
 		//TODO: Is this then already a thread?
 		//prod.run();
     }
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -52,7 +52,8 @@ public class Producer implements Runnable {
 	    CPU, GPU, MAINBOARD, RAM
 	}
 	
-	private int quantity, errorRate;	
+	private int quantity;
+	private double errorRate;	
 	private String makerID;
 	private Components component;
 	private Thread thread;
@@ -72,7 +73,7 @@ public class Producer implements Runnable {
 	 * @param errorRate
 	 * @param component
 	 */
-	public Producer (final int quantity, final String makerID, final int errorRate, final Components component) {
+	public Producer (final int quantity, final String makerID, final double errorRate, final Components component) {
 		
 		this.quantity  = quantity;
 		this.makerID   = makerID;
@@ -184,7 +185,7 @@ public class Producer implements Runnable {
 	private boolean getFailure() {
 		// 100%
 		int decision = random.nextInt(100);
-		if(decision < errorRate*100) {
+		if(decision < (int) errorRate*100) {
 			return true;
 		} else {
 			return false;
