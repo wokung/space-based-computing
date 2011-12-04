@@ -84,6 +84,7 @@ public class Gui implements ActionListener {
        
         workerList = new JList(worker);
     	partsTypeList = new JList(parts);
+    	partsTypeList.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
     	shippedProducts = new JList(shipped);
     	failedProducts = new JList(failed);
         
@@ -223,52 +224,53 @@ public class Gui implements ActionListener {
         	
         	//Parts list
         	
-        	ArrayList<Component>readEntries;
+        	ArrayList<Component>readEntries = null;
         	
         	//This is quite ugly, but i don't care right now
-        	if (partsTypeList.getSelectedIndices() != null) {
-	        	int part[] = partsTypeList.getSelectedIndices();
-	        	Integer count = 0;
-	        	for (int i = 0; i < part.length; i++) {
-		        	switch(part[i]) {
-		        	case (1):
-		        		try {
-		    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("CPU", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
-		    			} catch (MzsCoreException e) {
-		    				 System.out.println("transaction timeout. retry.");
-		                     continue;
-		    			}
-		        		count += readEntries.size();
-		        	case (2):
-		        		try {
-		    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("GPU", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
-		    			} catch (MzsCoreException e) {
-		    				 System.out.println("transaction timeout. retry.");
-		                     continue;
-		    			}
-		        		count += readEntries.size();
-		        	case (3):
-		        		try {
-		    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("RAM", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
-		    			} catch (MzsCoreException e) {
-		    				 System.out.println("transaction timeout. retry.");
-		                     continue;
-		    			}
-		        		count += readEntries.size();
-		        	case (4):
-		        		try {
-		    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("MAINBOARD", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
-		    			} catch (MzsCoreException e) {
-		    				 System.out.println("transaction timeout. retry.");
-		                     continue;
-		    			}
-		        		count += readEntries.size();
-		        	}
+    	
+    		try {
+    			int part = partsTypeList.getSelectedIndex();
+    		
+	        	switch(part) {
+	        	case (0):
+	        		try {
+	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("CPU", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.TRY_ONCE, null);
+	    			} catch (MzsCoreException e) {
+	    				 System.out.println("transaction timeout. retry.");
+	                     continue;
+	    			}
+	        	break;
+	        	case (1):
+	        		try {
+	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("1", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.TRY_ONCE, null);
+	    			} catch (MzsCoreException e) {
+	    				 System.out.println("transaction timeout. retry.");
+	                     continue;
+	    			}
+	        	break;
+	        	case (2):
+	        		try {
+	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("2", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.TRY_ONCE, null);
+	    			} catch (MzsCoreException e) {
+	    				 System.out.println("transaction timeout. retry.");
+	                     continue;
+	    			}
+	        	break;
+	        	case (3):
+	        		try {
+	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("3", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.TRY_ONCE, null);
+	    			} catch (MzsCoreException e) {
+	    				 System.out.println("transaction timeout. retry.");
+	                     continue;
+	    			}
 	        	}
-	        	
+	        	Integer count = readEntries.size();
+	        		        	
 	        	partsCount.setText(count.toString());
 	        	partsCount.repaint();
-        	}
+    		} catch (NullPointerException n) {
+    			continue;
+    		}
         	
         	//Computer lists
         	ArrayList<Computer>compEntries;
