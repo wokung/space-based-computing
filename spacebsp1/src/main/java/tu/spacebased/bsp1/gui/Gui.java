@@ -54,7 +54,7 @@ public class Gui implements ActionListener {
     private static JTextField errorRate = new JTextField("0.1");
     private static JTextField workerName = new JTextField("20");
     private static JTextField partsCount = new JTextField("123");
-    private static JTextField failureNotification = new JTextField(50);
+    private static JTextField failureNotification = new JTextField(30);
     
 	// For Container in space
 	static ContainerReference cRef = null;
