@@ -2,7 +2,7 @@ package tu.spacebased.bsp1.workers;
 
 public abstract class Worker {	
 	private String id;
-
+	
 	public static void main(String[] args){
 	}
 	// simulate a working period between 1-3 seconds

@@ -1,6 +1,7 @@
 package tu.spacebased.bsp1.components;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import tu.spacebased.bsp1.exceptions.BuildComputerException;
@@ -17,7 +18,7 @@ public class Computer implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	private final int makerId;
+	private final String makerId;
 	
 	private final CPU cpu;
 	private final Mainboard mainboard;
@@ -27,7 +28,7 @@ public class Computer implements Serializable {
 	// will be assigned by Tester ??
 	private boolean defect;
 	
-	public Computer(int makerID, Mainboard mainboard, CPU cpu, List<Ram> ram, GPU gpu) throws BuildComputerException {
+	public Computer(String makerID, Mainboard mainboard, CPU cpu, List<Ram> ram, GPU gpu) throws BuildComputerException {
 		
 		// Checks for mandatory components or throw exceptions
 		if ((mainboard == null) || (cpu == null) || (ram.isEmpty())) {
@@ -47,8 +48,8 @@ public class Computer implements Serializable {
 		// COMPUTE DEFECTS; check if components got a defect (or let the tester do it :D)
 		
 	}
-	
-	public int getMakerID() {
+
+	public String getMakerID() {
 		return makerId;
 	}
 	

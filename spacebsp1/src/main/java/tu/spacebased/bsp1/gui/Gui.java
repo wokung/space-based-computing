@@ -1,5 +1,6 @@
 package tu.spacebased.bsp1.gui;
 
+import javax.swing.*;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -7,20 +8,19 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-
-import javax.swing.*;
 
 import org.mozartspaces.capi3.*;
 import org.mozartspaces.core.Capi;
 import org.mozartspaces.core.CapiUtil;
 import org.mozartspaces.core.ContainerReference;
 import org.mozartspaces.core.DefaultMzsCore;
+import org.mozartspaces.core.Entry;
 import org.mozartspaces.core.MzsConstants.RequestTimeout;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreException;
 
 import tu.spacebased.bsp1.workers.Producer;
+import tu.spacebased.bsp1.workers.Producer.Components;
 
 public class Gui{
 	/**
@@ -44,6 +44,10 @@ public class Gui{
     private static JTextField errorRate = new JTextField("0.1");
     private static JTextField workerName = new JTextField("Jesus");
     private static JTextField partsCount = new JTextField("123");
+    
+	// For Container in space
+	static ContainerReference cRef = null;
+	static Capi capi = null;
     
     private static void createAndShowGUI() {
     	
@@ -134,11 +138,8 @@ public class Gui{
 
     public static void main(String[] args) {
     	
-    	// For Container in space
-    	ContainerReference cRef = null;
-    	
     	MzsCore core = DefaultMzsCore.newInstance();
-        Capi capi = new Capi(core);
+        capi = new Capi(core);
     	
     	URI uri = null;
  		try {
@@ -192,4 +193,33 @@ public class Gui{
         }
     }
     
+//Create Producer
+
+    public void createProducer(int quantity,int errorRate,Components component) {
+    	
+    	int makerID;
+    
+		ArrayList<Integer>readId = null;
+		
+		try {
+			readId = capi.take(cRef, KeyCoordinator.newSelector("uniqueWorkerId"), RequestTimeout.INFINITE, null);
+		} catch (MzsCoreException e) {
+			 System.out.println("this should never happen :S");
+		}
+		
+		Entry id = new Entry(readId.get(0)+1, KeyCoordinator.newCoordinationData("uniqueId"));
+		
+		try {
+			capi.write(cRef, RequestTimeout.INFINITE, null, id);
+		} catch (MzsCoreException e) {
+			 System.out.println("this should never happen :S");
+		}
+		
+		makerID = readId.get(0);
+		
+		Producer prod = new Producer(quantity, makerID, errorRate, component);
+		
+		//TODO: Is this then already a thread?
+		prod.run();
+    }
 }

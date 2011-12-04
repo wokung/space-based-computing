@@ -47,7 +47,7 @@ import tu.spacebased.bsp1.components.Ram;
 // Implement as Thread
 public class Producer implements Runnable {
 	
-	private enum Components {
+	public enum Components {
 	    CPU, GPU, MAINBOARD, RAM
 	}
 	
