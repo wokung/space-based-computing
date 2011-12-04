@@ -138,7 +138,7 @@ public class Producer implements Runnable {
 						        break;
 			}
 			
-			Entry id = new Entry(newComponent, LabelCoordinator.newCoordinationData(component.toString()));
+			Entry id = new Entry(newComponent, LabelCoordinator.newCoordinationData("CPU"));
 			
 			try {
 				capi.write(cRef, RequestTimeout.INFINITE, null, id);
