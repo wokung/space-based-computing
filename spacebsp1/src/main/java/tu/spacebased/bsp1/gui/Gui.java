@@ -23,6 +23,7 @@ import org.mozartspaces.core.MzsConstants.RequestTimeout;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreException;
 
+import tu.spacebased.bsp1.components.CPU;
 import tu.spacebased.bsp1.components.Component;
 import tu.spacebased.bsp1.components.Computer;
 import tu.spacebased.bsp1.workers.Producer;
@@ -190,21 +191,21 @@ public class Gui implements ActionListener {
         String sellContainerName = "sell";
         
         try {
-			cRef = capi.lookupContainer(containerName, uri, 3000, null);
+			cRef = capi.lookupContainer(containerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
 		} catch (MzsCoreException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
         
         try {
-			shittyRef = capi.lookupContainer(shittyContainerName, uri, 3000, null);
+			shittyRef = capi.lookupContainer(shittyContainerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
 		} catch (MzsCoreException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
         
         try {
-			sellRef = capi.lookupContainer(sellContainerName, uri, 3000, null);
+			sellRef = capi.lookupContainer(sellContainerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
 		} catch (MzsCoreException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -234,10 +235,9 @@ public class Gui implements ActionListener {
 	        	switch(part) {
 	        	case (0):
 	        		try {
-	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("CPU", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.TRY_ONCE, null);
+	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("CPU", MzsConstants.Selecting.COUNT_MAX), RequestTimeout.TRY_ONCE, null);
 	    			} catch (MzsCoreException e) {
 	    				 System.out.println("transaction timeout. retry.");
-	                     continue;
 	    			}
 	        	break;
 	        	case (1):

@@ -148,11 +148,19 @@ public class App
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+    	
+    	try {
+			transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
+		} catch (MzsCoreException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 
     	entry = new Entry(i, KeyCoordinator.newCoordinationData("uniqueWorkerId"));
         
     	try {
-			capi.write(cRef, MzsConstants.RequestTimeout.INFINITE, null, entry);
+			capi.write(cRef, MzsConstants.RequestTimeout.INFINITE, transaction, entry);
+			capi.commitTransaction(transaction);
 		} catch (MzsCoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
