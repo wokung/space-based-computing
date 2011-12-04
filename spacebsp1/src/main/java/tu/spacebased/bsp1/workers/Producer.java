@@ -15,6 +15,7 @@ import org.mozartspaces.core.CapiUtil;
 import org.mozartspaces.core.ContainerReference;
 import org.mozartspaces.core.DefaultMzsCore;
 import org.mozartspaces.core.Entry;
+import org.mozartspaces.core.MzsConstants;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreException;
 import org.mozartspaces.core.MzsConstants.RequestTimeout;
@@ -87,7 +88,7 @@ public class Producer implements Runnable {
 		}
 		
 		MzsCore core = DefaultMzsCore.newInstance();
-	    Capi capi = new Capi(core);
+	    capi = new Capi(core);
 	    
 	    URI uri = null;
 		try {
@@ -98,11 +99,7 @@ public class Producer implements Runnable {
 		}
 		
 		try {
-			cRef = CapiUtil.lookupOrCreateContainer(
-					containerName,
-					uri,
-					Arrays.asList(new FifoCoordinator()),
-					null, capi);
+			cRef = capi.lookupContainer(containerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
 		} catch (MzsCoreException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -141,11 +138,6 @@ public class Producer implements Runnable {
 						        break;
 			}
 			
-			// TODO Die in Task 1.1 durch die Produzenten/-innen erstellten Teile sollen in den Space geschrieben werden. 
-			// Anschlie�end soll die L�sung die Einzelteile zu Computern zusammensetzen, sie testen und schlie�lich die 
-			// fertigen Computer im Space speichern.
-			// TODO: PUBLISH TO SPACE
-			
 			Entry id = new Entry(newComponent, LabelCoordinator.newCoordinationData(component.toString()));
 			
 			try {
@@ -160,22 +152,31 @@ public class Producer implements Runnable {
 	private int uniqueID() {
 		
 		ArrayList<Integer>readEntries = null;
+		System.out.println("-------:DEBUG:-------- ");
 		
 		try {
 			readEntries = capi.take(cRef, KeyCoordinator.newSelector("uniqueId"), RequestTimeout.INFINITE, null);
+		} catch (NullPointerException n) {
+			System.out.println("fock");
 		} catch (MzsCoreException e) {
 			 System.out.println("this should never happen :S");
 		}
 		
-		Entry id = new Entry(readEntries.get(0)+1, KeyCoordinator.newCoordinationData("uniqueId"));
+		System.out.println("-------:DEBUG:-------- ");
+		
+		Integer id = readEntries.get(0);
+		
+		System.out.println("-------:DEBUG:--------:id= " +id);
+		
+		Entry postId = new Entry(id+1, KeyCoordinator.newCoordinationData("uniqueId"));
 		
 		try {
-			capi.write(cRef, RequestTimeout.INFINITE, null, id);
+			capi.write(cRef, RequestTimeout.INFINITE, null, postId);
 		} catch (MzsCoreException e) {
 			 System.out.println("this should never happen :S");
 		}
 		
-		return (readEntries.get(0));
+		return (id);
 	}
 	
 	/**
