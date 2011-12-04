@@ -152,17 +152,12 @@ public class Producer implements Runnable {
 	private int uniqueID() {
 		
 		ArrayList<Integer>readEntries = null;
-		System.out.println("-------:DEBUG:-------- ");
 		
 		try {
-			readEntries = capi.take(cRef, KeyCoordinator.newSelector("uniqueId"), RequestTimeout.INFINITE, null);
-		} catch (NullPointerException n) {
-			System.out.println("fock");
+			readEntries = capi.take(cRef, KeyCoordinator.newSelector("uniqueId"), 1000, null);
 		} catch (MzsCoreException e) {
 			 System.out.println("this should never happen :S");
 		}
-		
-		System.out.println("-------:DEBUG:-------- ");
 		
 		Integer id = readEntries.get(0);
 		
