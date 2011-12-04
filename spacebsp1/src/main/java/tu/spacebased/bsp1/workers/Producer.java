@@ -18,6 +18,7 @@ import org.mozartspaces.core.Entry;
 import org.mozartspaces.core.MzsConstants;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreException;
+import org.mozartspaces.core.TransactionReference;
 import org.mozartspaces.core.MzsConstants.RequestTimeout;
 
 import tu.spacebased.bsp1.components.CPU;
@@ -64,6 +65,8 @@ public class Producer implements Runnable {
 	private Capi capi;
 	private ContainerReference cRef = null;
     private String containerName = "store";
+	TransactionReference transaction = null;
+	URI uri = null;
 	
 	/**
 	 * Constructor of Producer
@@ -90,16 +93,23 @@ public class Producer implements Runnable {
 		MzsCore core = DefaultMzsCore.newInstance();
 	    capi = new Capi(core);
 	    
-	    URI uri = null;
 		try {
 			uri = new URI("xvsm://localhost:9877");
 		} catch (URISyntaxException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+
+		try {
+			transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
+		} catch (MzsCoreException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		
 		try {
-			cRef = capi.lookupContainer(containerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
+			cRef = capi.lookupContainer(containerName, uri, MzsConstants.RequestTimeout.INFINITE, transaction);
+			capi.commitTransaction(transaction);
 		} catch (MzsCoreException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -119,32 +129,49 @@ public class Producer implements Runnable {
 		for (int i = 0; i<quantity; i++) {
 			// simulate work
 			simulateWork();
-			
+						
 			// create new objects
 			switch (component) {
-				case CPU:       newComponent = new CPU(uniqueID(), makerID, getFailure());
-						        break;
+				case CPU:
+					newComponent = new CPU(uniqueID(), makerID, getFailure());
+					break;
 						
-				case GPU:       newComponent = new GPU(uniqueID(), makerID, getFailure());
-						        break;
+				case GPU:
+					newComponent = new GPU(uniqueID(), makerID, getFailure());
+					break;
 						     
-				case MAINBOARD: newComponent = new Mainboard(uniqueID(), makerID, getFailure());
-								break;
+				case MAINBOARD:
+					newComponent = new Mainboard(uniqueID(), makerID, getFailure());
+					break;
 								
-				case RAM:       newComponent = new Ram(uniqueID(), makerID, getFailure());
-						        break;
+				case RAM:
+					newComponent = new Ram(uniqueID(), makerID, getFailure());
+					break;
 						     
-				default:	    thread.interrupt();
-						        break;
+				default:
+					thread.interrupt();
+					break;
 			}
 			
-			Entry id = new Entry(newComponent, LabelCoordinator.newCoordinationData("CPU"));
+			Entry entry = new Entry(newComponent, LabelCoordinator.newCoordinationData("CPU"));
+			
+			System.out.println("I'm sure i inserted a CPU...");
 			
 			try {
-				capi.write(cRef, RequestTimeout.INFINITE, null, id);
+				transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
+			} catch (MzsCoreException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
+			try {
+				capi.write(cRef, MzsConstants.RequestTimeout.TRY_ONCE, transaction, entry);
+				capi.commitTransaction(transaction);
 			} catch (MzsCoreException e) {
 				 System.out.println("this should never happen :S");
 			}
+			
+			System.out.println("I'm sure i inserted a CPU...");
 		}
 	}
 	
@@ -161,12 +188,18 @@ public class Producer implements Runnable {
 		
 		Integer id = readEntries.get(0);
 		
-		System.out.println("-------:DEBUG:--------:id= " +id);
-		
 		Entry postId = new Entry(id+1, KeyCoordinator.newCoordinationData("uniqueId"));
 		
 		try {
-			capi.write(cRef, RequestTimeout.INFINITE, null, postId);
+			transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
+		} catch (MzsCoreException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
+		try {
+			capi.write(cRef, RequestTimeout.INFINITE, transaction, postId);
+			capi.commitTransaction(transaction);
 		} catch (MzsCoreException e) {
 			 System.out.println("this should never happen :S");
 		}
