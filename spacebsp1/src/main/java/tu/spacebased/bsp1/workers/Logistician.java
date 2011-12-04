@@ -63,7 +63,7 @@ public class Logistician {
 		// get the last Tester from space and check if the id is already initialized
 		
 		MzsCore core = DefaultMzsCore.newInstance();
-	    Capi capi = new Capi(core);
+	    capi = new Capi(core);
 	    
 	    URI uri = null;
 		try {

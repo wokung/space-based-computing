@@ -66,7 +66,7 @@ public class Assembler {
 		// get the last Tester from space and check if the id is already initialized
 		
 		MzsCore core = DefaultMzsCore.newInstance();
-	    Capi capi = new Capi(core);
+	    capi = new Capi(core);
 	    
 	    URI uri = null;
 		try {
@@ -119,19 +119,29 @@ public class Assembler {
 			} catch (MzsCoreException e) {
 				 System.out.println("this should never happen :S");
 			}
-			Mainboard mainboard = mainboardList.get(0);
+			Mainboard mainboard = null;
+			if (mainboardList != null) {
+				mainboard = mainboardList.get(0);
+			}
 			
 			try {
 				cpuList = capi.take(cRef, LabelCoordinator.newSelector(Components.CPU.toString(),1), RequestTimeout.INFINITE, null);
 			} catch (MzsCoreException e) {
 				 System.out.println("this should never happen :S");
 			}
-			CPU cpu = cpuList.get(0);
-			
+			CPU cpu = null;
+			if (cpuList != null) {
+				cpu = cpuList.get(0);
+			}
 			try {
 				ramList = capi.take(cRef, LabelCoordinator.newSelector(Components.RAM.toString(),4), RequestTimeout.ZERO, null);
-				ramList = capi.take(cRef, LabelCoordinator.newSelector(Components.RAM.toString(),2), RequestTimeout.ZERO, null);
-				ramList = capi.take(cRef, LabelCoordinator.newSelector(Components.RAM.toString(),1), RequestTimeout.ZERO, null);
+				if (ramList == null) {
+					ramList = capi.take(cRef, LabelCoordinator.newSelector(Components.RAM.toString(),2), RequestTimeout.ZERO, null);
+				}
+				if (ramList == null) {
+					ramList = capi.take(cRef, LabelCoordinator.newSelector(Components.RAM.toString(),1), RequestTimeout.ZERO, null);
+				}
+				System.out.println("-----RAMLIST has SIZE: " + ramList.size());
 			} catch (MzsCoreException e) {
 				 ;
 			}
@@ -141,9 +151,12 @@ public class Assembler {
 			} catch (MzsCoreException e) {
 				 ;
 			}
-			GPU gpu = gpuList.get(0);
-			
+			GPU gpu = null;
+			if (gpuList != null) {
+				gpu = gpuList.get(0);
+			}
 			try {
+				System.out.println("-----BUILDING COMPUTER WITH: " + id + " " + mainboard.toString() + " " + cpu.toString() + " " + ramList.toString() + " " + gpu);
 				computer = new Computer(id, mainboard, cpu, ramList, gpu);
 			} catch (BuildComputerException e1) {
 				e1.printStackTrace();

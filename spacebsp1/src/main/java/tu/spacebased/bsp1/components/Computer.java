@@ -31,11 +31,11 @@ public class Computer implements Serializable {
 	public Computer(int makerID, Mainboard mainboard, CPU cpu, List<Ram> ram, GPU gpu) throws BuildComputerException {
 		
 		// Checks for mandatory components or throw exceptions
-		if ((mainboard == null) || (cpu == null) || (ram.isEmpty())) {
+		if ((mainboard == null) || (cpu == null) || (ram == null)) {
 			throw new BuildComputerException("Mandatory components missing");
 		}
-		
-		if ((ram.size() != 1) || (ram.size() != 2) || (ram.size() != 4)) {
+		System.out.println("!!!!!!!!!!!!RAMSIZE IS: " + ram.size());
+		if ((ram.size() != 1) && (ram.size() != 2) && (ram.size() != 4)) {
 			throw new BuildComputerException("Ram size not possible");
 		}
 		

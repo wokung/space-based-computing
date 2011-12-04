@@ -45,10 +45,12 @@ public class Tester {
 		// do some command checking
 		
 		int firstArg = -1;
+		int secondArg = -1;
 		
-		if (args.length == 1) {
+		if (args.length == 2) {
 		    try {
 		        firstArg = Integer.parseInt(args[0]);
+		        secondArg = Integer.parseInt(args[1]);
 		    } catch (NumberFormatException e) {
 		        System.err.println("Argument 1 must be an positive integer of WorkerID");
 		        System.exit(1);
@@ -61,7 +63,7 @@ public class Tester {
 		// get the last Tester from space and check if the id is already initialized
 		
 		MzsCore core = DefaultMzsCore.newInstance();
-	    Capi capi = new Capi(core);
+	    capi = new Capi(core);
 	    
 	    URI uri = null;
 		try {
@@ -100,7 +102,7 @@ public class Tester {
 		ArrayList<Computer> computerList = null;
 		
 		//TODO: Maybe we should change this from command-line arguments to query for input? 
-		if (args[1].equals("0")){
+		if (secondArg == 0){
 			for (;;) {
 				
 				boolean defect;
@@ -136,7 +138,7 @@ public class Tester {
 				}
 			}	
 			
-		} else if (args[1].equals("1")) {
+		} else if (secondArg == 1) {
 	
 			for (;;) {
 				
