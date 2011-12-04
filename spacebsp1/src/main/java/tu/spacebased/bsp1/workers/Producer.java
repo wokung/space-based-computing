@@ -88,7 +88,7 @@ public class Producer implements Runnable {
 		}
 		
 		MzsCore core = DefaultMzsCore.newInstance();
-	    Capi capi = new Capi(core);
+	    capi = new Capi(core);
 	    
 	    URI uri = null;
 		try {
@@ -152,16 +152,21 @@ public class Producer implements Runnable {
 	private int uniqueID() {
 		
 		ArrayList<Integer>readEntries = null;
+		System.out.println("-------:DEBUG:-------- ");
 		
 		try {
 			readEntries = capi.take(cRef, KeyCoordinator.newSelector("uniqueId"), RequestTimeout.INFINITE, null);
+		} catch (NullPointerException n) {
+			System.out.println("fock");
 		} catch (MzsCoreException e) {
 			 System.out.println("this should never happen :S");
 		}
 		
+		System.out.println("-------:DEBUG:-------- ");
+		
 		Integer id = readEntries.get(0);
 		
-		System.out.println("-------:DEBUG:--------:id=" +id);
+		System.out.println("-------:DEBUG:--------:id= " +id);
 		
 		Entry postId = new Entry(id+1, KeyCoordinator.newCoordinationData("uniqueId"));
 		
