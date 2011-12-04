@@ -4,9 +4,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.UUID;
 
 import org.mozartspaces.capi3.AnyCoordinator;
 import org.mozartspaces.capi3.FifoCoordinator;
+import org.mozartspaces.capi3.KeyCoordinator;
 import org.mozartspaces.capi3.LabelCoordinator;
 import org.mozartspaces.core.Capi;
 import org.mozartspaces.core.CapiUtil;
@@ -30,7 +32,7 @@ import tu.spacebased.bsp1.components.Computer;
  * @author Kung
  */
 public class Logistician {
-	
+	private static int id;
 	// For Container in space
 	private static Capi capi;
 	private static ContainerReference cRef = null;
@@ -40,8 +42,26 @@ public class Logistician {
     private static String shittyContainerName = "shitty";
     private static String sellContainerName = "sell";
 	
-	public void main(String [] args)
+	public static void main(String [] args)
 	{
+		// do some command checking
+		
+		int firstArg = -1;
+		
+		if (args.length == 1) {
+		    try {
+		        firstArg = Integer.parseInt(args[0]);
+		    } catch (NumberFormatException e) {
+		        System.err.println("Argument 1 must be an positive integer of WorkerID");
+		        System.exit(1);
+		    }
+		} else {
+			System.err.println("Usage: java Logistician 'workerId'");
+			System.exit(1);
+		}
+		
+		// get the last Tester from space and check if the id is already initialized
+		
 		MzsCore core = DefaultMzsCore.newInstance();
 	    Capi capi = new Capi(core);
 	    
@@ -86,6 +106,21 @@ public class Logistician {
 			e1.printStackTrace();
 		}
 		
+		// check if arguments are correct
+		try {
+			int luwid;
+			if (firstArg <= (luwid = getLastUniqueWorkerID())) {
+				System.err.println("Please specify a WorkerId, that is not already initialized, the hightest workerId is " + luwid);
+			}
+		} catch (Exception e) {
+			System.err.println("Couldn't resolve lastuniqueworkerId from space");
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		// arguments correct, proceeding
+		id = firstArg;
+		
 		ArrayList<Computer> computerList = null;
 	
 		for (;;) {
@@ -96,7 +131,8 @@ public class Logistician {
 			}
 			Computer computer = computerList.get(0);
 			
-			//TODO: keep track of Logistician that processed it;
+			// keep track of Logistician that processed it;
+			computer.setLogisticianID(id);
 			
 			if (computer.isDefect()) {
 				Entry compEntry = new Entry(computer);
@@ -116,5 +152,26 @@ public class Logistician {
 				}
 			}
 		}
+	}
+	
+	private static int getLastUniqueWorkerID() {
+		
+		ArrayList<Integer>readEntries = null;
+		
+		try {
+			readEntries = capi.take(cRef, KeyCoordinator.newSelector("uniqueWorkerId"), RequestTimeout.INFINITE, null);
+		} catch (MzsCoreException e) {
+			 System.out.println("this should never happen :S");
+		}
+		
+		return (readEntries.get(0));
+	}
+	
+	// GETTER SETTER
+	public int getId(){
+		return id;
+	}
+	public void setId(int id){
+		this.id = id;
 	}
 }

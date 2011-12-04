@@ -288,9 +288,9 @@ public class Gui{
 
     public void createProducer(int quantity,int errorRate,Components component) {
     	
-    	int makerID;
+    	String makerID;
     
-		ArrayList<Integer>readId = null;
+		ArrayList<String>readId = null;
 		
 		try {
 			readId = capi.take(cRef, KeyCoordinator.newSelector("uniqueWorkerId"), RequestTimeout.INFINITE, null);
@@ -311,6 +311,6 @@ public class Gui{
 		Producer prod = new Producer(quantity, makerID, errorRate, component);
 		
 		//TODO: Is this then already a thread?
-		prod.run();
+		//prod.run();
     }
 }

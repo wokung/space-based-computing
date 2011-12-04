@@ -4,8 +4,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
-
 import org.mozartspaces.capi3.FifoCoordinator;
 import org.mozartspaces.capi3.KeyCoordinator;
 import org.mozartspaces.capi3.LabelCoordinator;
@@ -39,15 +37,34 @@ import tu.spacebased.bsp1.workers.Producer.Components;
  * @author Kung
  */
 public class Assembler {	
-	private String id;
+	private static int id;
 	
 	// For Container in space
 	private static Capi capi;
 	private static ContainerReference cRef = null;
     private static String containerName = "store";
 	
-	public void main(String [] args)
+	public static void main(String [] args)
 	{
+		// do some command checking
+		System.out.println("Assembler started");
+		
+		int firstArg = -1;
+		
+		if (args.length == 1) {
+		    try {
+		        firstArg = Integer.parseInt(args[0]);
+		    } catch (NumberFormatException e) {
+		        System.err.println("Argument 1 must be an positive integer of WorkerID");
+		        System.exit(1);
+		    }
+		} else {
+			System.err.println("Usage: java Assembler 'workerId'");
+			System.exit(1);
+		}
+		
+		// get the last Tester from space and check if the id is already initialized
+		
 		MzsCore core = DefaultMzsCore.newInstance();
 	    Capi capi = new Capi(core);
 	    
@@ -63,12 +80,27 @@ public class Assembler {
 			cRef = CapiUtil.lookupOrCreateContainer(
 					containerName,
 					uri,
-					Arrays.asList(new FifoCoordinator()),
+					Arrays.asList(new FifoCoordinator(), new KeyCoordinator()),
 					null, capi);
 		} catch (MzsCoreException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		
+		// check if arguments are correct
+		try {
+			int luwid;
+			if (firstArg <= (luwid = getLastUniqueWorkerID())) {
+				System.err.println("Please specify a WorkerId, that is not already initialized, the hightest workerId is " + luwid);
+			}
+		} catch (Exception e) {
+			System.err.println("Couldn't resolve lastuniqueworkerId from space");
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		// arguments correct, proceeding
+		id = firstArg;
 		
 		for (;;) {
 			
@@ -81,6 +113,7 @@ public class Assembler {
 			
 			//TODO: Fix so only oldest mainboard is selected
 			//This one is trickier, we actually need FIFO and LabelSelector, this is not possible... query could work, but how?
+			// this should be possible by adding 2 coordinators: List<Coord> xx = ... xx.add(fifo), xx.add(keycord)
 			try {
 				mainboardList = capi.take(cRef, LabelCoordinator.newSelector(Components.MAINBOARD.toString(),1), RequestTimeout.INFINITE, null);
 			} catch (MzsCoreException e) {
@@ -111,7 +144,7 @@ public class Assembler {
 			GPU gpu = gpuList.get(0);
 			
 			try {
-				computer = new Computer(this.getId(), mainboard, cpu, ramList, gpu);
+				computer = new Computer(id, mainboard, cpu, ramList, gpu);
 			} catch (BuildComputerException e1) {
 				e1.printStackTrace();
 			}
@@ -125,12 +158,20 @@ public class Assembler {
 			}
 		}
 	}
-	
-	// GETTER SETTER
-	public String getId(){
-		return id;
+	private static int getLastUniqueWorkerID() {
+		
+		ArrayList<Integer>readEntries = null;
+		
+		try {
+			readEntries = capi.take(cRef, KeyCoordinator.newSelector("uniqueWorkerId"), RequestTimeout.INFINITE, null);
+		} catch (MzsCoreException e) {
+			 System.out.println("this should never happen :S");
+		}
+		
+		return (readEntries.get(0));
 	}
-	public void setId(String id){
-		this.id = id;
+	// GETTER SETTER
+	public int getId(){
+		return id;
 	}
 }

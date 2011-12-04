@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.UUID;
 
 import org.mozartspaces.capi3.FifoCoordinator;
 import org.mozartspaces.capi3.KeyCoordinator;
@@ -46,12 +47,13 @@ import tu.spacebased.bsp1.components.Ram;
  */
 // Implement as Thread
 public class Producer implements Runnable {
-	
+
 	public enum Components {
 	    CPU, GPU, MAINBOARD, RAM
 	}
 	
-	private int quantity, makerID, errorRate;	
+	private int quantity, errorRate;	
+	private String makerID;
 	private Components component;
 	private Thread thread;
 	private Random random = null;
@@ -70,7 +72,7 @@ public class Producer implements Runnable {
 	 * @param errorRate
 	 * @param component
 	 */
-	public Producer (final int quantity, final int makerID, final int errorRate, final Components component) {
+	public Producer (final int quantity, final String makerID, final int errorRate, final Components component) {
 		
 		this.quantity  = quantity;
 		this.makerID   = makerID;
@@ -107,6 +109,10 @@ public class Producer implements Runnable {
 	}
 	
 	public void run() {
+		
+		// create new uuid for this worker
+		UUID uid= UUID.randomUUID();
+		this.setId(uid.toString());
 		
 		Component newComponent = null;
 		
@@ -198,5 +204,11 @@ public class Producer implements Runnable {
 			System.out.println(e.getMessage());
 		}
 	}
-	
+	// GETTER SETTER
+	public String getMakerId(){
+		return makerID;
+	}
+	public void setId(String id){
+		this.makerID = id;
+	}
 }

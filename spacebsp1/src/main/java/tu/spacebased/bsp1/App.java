@@ -33,12 +33,13 @@ public class App
         
         MzsCore core = DefaultMzsCore.newInstance();
         Capi capi = new Capi(core);
-        
+        // TODO: man muss alle in einem container verwendeten selectoren beim erzeugen des containers angeben... 
+        // das sollten wir auch noch checken, kannst du das als TODO in app.java schreiben damit ich es nicht vergesse?
         try {
         		cRef = CapiUtil.lookupOrCreateContainer(
 					containerName,
 					uri,
-					Arrays.asList(new FifoCoordinator(), new LabelCoordinator(), new KeyCoordinator()),
+					Arrays.asList(new KeyCoordinator(), new LabelCoordinator(), new FifoCoordinator()),
 					null,
 					capi); //transaction could be a real TransactionRefernce if
 							// we need commit-style
@@ -56,7 +57,7 @@ public class App
 			e.printStackTrace();
 		}
     	
-    	entry = new Entry("0", LabelCoordinator.newCoordinationData("uniqueWorkerId"));
+    	entry = new Entry(0, LabelCoordinator.newCoordinationData("uniqueWorkerId"));
         
     	try {
 			capi.write(cRef, 0, null, entry);

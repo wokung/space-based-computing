@@ -1,17 +1,18 @@
 package tu.spacebased.bsp1.components;
 
 public class Ram implements Component {
+	
+	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-	
+	private static final long serialVersionUID = 6964427006031915666L;
 	private final int id;
-	private final int makerId;
+	private final String makerId;
 	private final boolean defect;
 	
 	// Constructor
-	public Ram(int ID, int makerID, boolean defect) {
+	public Ram(int ID, String makerID, boolean defect) {
 		this.id = ID;
 		this.makerId = makerID;
 		this.defect = defect;
@@ -21,7 +22,7 @@ public class Ram implements Component {
 		return id;
 	}
 
-	public int getMakerID() {
+	public String getMakerID() {
 		return makerId;
 	}
 

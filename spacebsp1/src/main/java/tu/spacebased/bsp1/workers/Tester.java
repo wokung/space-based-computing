@@ -4,8 +4,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.UUID;
 
 import org.mozartspaces.capi3.FifoCoordinator;
+import org.mozartspaces.capi3.KeyCoordinator;
 import org.mozartspaces.capi3.LabelCoordinator;
 import org.mozartspaces.core.Capi;
 import org.mozartspaces.core.CapiUtil;
@@ -32,14 +34,32 @@ import tu.spacebased.bsp1.components.Computer;
  * @author Kung
  */
 public class Tester {
-	
+	private static int id;
 	// For Container in space
 	private static Capi capi;
 	private static ContainerReference cRef = null;
     private static String containerName = "store";
 	
-	public void main(String[] args)
+	public static void main(String[] args)
 	{
+		// do some command checking
+		
+		int firstArg = -1;
+		
+		if (args.length == 1) {
+		    try {
+		        firstArg = Integer.parseInt(args[0]);
+		    } catch (NumberFormatException e) {
+		        System.err.println("Argument 1 must be an positive integer of WorkerID");
+		        System.exit(1);
+		    }
+		} else {
+			System.err.println("Usage: java Tester 'workerId' '0|1'");
+			System.exit(1);
+		}
+		
+		// get the last Tester from space and check if the id is already initialized
+		
 		MzsCore core = DefaultMzsCore.newInstance();
 	    Capi capi = new Capi(core);
 	    
@@ -62,10 +82,25 @@ public class Tester {
 			e1.printStackTrace();
 		}
 		
+		// check if arguments are correct
+		try {
+			int luwid;
+			if (firstArg <= (luwid = getLastUniqueWorkerID())) {
+				System.err.println("Please specify a WorkerId, that is not already initialized, the hightest workerId is " + luwid);
+			}
+		} catch (Exception e) {
+			System.err.println("Couldn't resolve lastuniqueworkerId from space");
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		// arguments correct, proceeding
+		id = firstArg;
+		
 		ArrayList<Computer> computerList = null;
 		
 		//TODO: Maybe we should change this from command-line arguments to query for input? 
-		if (args[0].equals("0")){
+		if (args[1].equals("0")){
 			for (;;) {
 				
 				boolean defect;
@@ -77,7 +112,9 @@ public class Tester {
 				}
 				Computer computer = computerList.get(0);
 				
-				//TODO: keep track of Tester that processed it;
+				// keep track of Tester that processed it;
+				computer.setTesterId(id);
+				
 				defect = false;
 				
 				// Checks for mandatory components or throw exceptions
@@ -99,7 +136,7 @@ public class Tester {
 				}
 			}	
 			
-		} else if (args[0].equals("1")) {
+		} else if (args[1].equals("1")) {
 	
 			for (;;) {
 				
@@ -112,7 +149,9 @@ public class Tester {
 				}
 				Computer computer = computerList.get(0);
 				
-				//TODO: keep track of Tester that processed it;
+				// keep track of Tester that processed it;
+				computer.setTesterId(id);
+				
 				defect = false;
 				
 				if(computer.getCpu().isDefect() || computer.getMainboard().isDefect()) {
@@ -143,5 +182,34 @@ public class Tester {
 		} else {
 			System.out.println("You must support either 1 or 0 as command line argument");
 		}
+	}
+	
+	private static int getLastUniqueWorkerID() {
+		
+		ArrayList<Integer>readEntries = null;
+		
+		try {
+			readEntries = capi.take(cRef, KeyCoordinator.newSelector("uniqueWorkerId"), RequestTimeout.INFINITE, null);
+		} catch (MzsCoreException e) {
+			 System.out.println("this should never happen :S");
+		}
+		
+		return (readEntries.get(0));
+		/**
+		Entry id = new Entry(readEntries.get(0)+1, KeyCoordinator.newCoordinationData("uniqueWorkerId"));
+		
+		try {
+			capi.write(cRef, RequestTimeout.INFINITE, null, id);
+		} catch (MzsCoreException e) {
+			 System.out.println("this should never happen :S");
+		}
+		
+		return (readEntries.get(0));
+		**/
+	}
+	
+	// GETTER SETTER
+	public int getId(){
+		return id;
 	}
 }
