@@ -153,9 +153,9 @@ public class Producer implements Runnable {
 					break;
 			}
 			
-			Entry entry = new Entry(newComponent, LabelCoordinator.newCoordinationData("CPU"));
+			Entry entry = new Entry(newComponent, LabelCoordinator.newCoordinationData(component.toString()));
 			
-			System.out.println("I'm sure i inserted a CPU...");
+			System.out.println("i inserted a"+component.toString());
 			
 			try {
 				transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
@@ -171,7 +171,6 @@ public class Producer implements Runnable {
 				 System.out.println("this should never happen :S");
 			}
 			
-			System.out.println("I'm sure i inserted a CPU...");
 		}
 	}
 	
