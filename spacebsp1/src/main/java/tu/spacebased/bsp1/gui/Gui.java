@@ -15,10 +15,13 @@ import org.mozartspaces.core.CapiUtil;
 import org.mozartspaces.core.ContainerReference;
 import org.mozartspaces.core.DefaultMzsCore;
 import org.mozartspaces.core.Entry;
+import org.mozartspaces.core.MzsConstants;
 import org.mozartspaces.core.MzsConstants.RequestTimeout;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreException;
 
+import tu.spacebased.bsp1.components.Component;
+import tu.spacebased.bsp1.components.Computer;
 import tu.spacebased.bsp1.workers.Producer;
 import tu.spacebased.bsp1.workers.Producer.Components;
 
@@ -47,6 +50,8 @@ public class Gui{
     
 	// For Container in space
 	static ContainerReference cRef = null;
+	static ContainerReference shittyRef = null;
+	static ContainerReference sellRef = null;
 	static Capi capi = null;
     
     private static void createAndShowGUI() {
@@ -65,9 +70,9 @@ public class Gui{
         
         // TODO: these are dummies - add actual 'ListModels' to the Lists 
         String worker[] = {"Juan","Pablo","Miguel"};
-        String parts[] = {"Mainboard", "etc.", "etc."};
-        String shipped[] = {"34", "453", "512"};
-        String failed[] = {"13", "23", "42", "75", "92", "150"};
+        String parts[] = {"CPU", "GPU", "MAINBOARD", "RAM"};
+        String shipped[] = {};
+        String failed[] = {};
        
         workerList = new JList(worker);
     	partsTypeList = new JList(parts);
@@ -149,17 +154,8 @@ public class Gui{
  			e1.printStackTrace();
  		}
         String containerName = "store";
-        
-        //temp
-        ArrayList<Integer> readEntries = null;
- 		
-        //Schedule a job for the event-dispatching thread:
-        //creating and showing this application's GUI.
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                createAndShowGUI();
-            }
-        });
+        String shittyContainerName = "shitty";
+        String sellContainerName = "sell";
         
         try {
 			cRef = CapiUtil.lookupOrCreateContainer(
@@ -172,20 +168,115 @@ public class Gui{
 			e1.printStackTrace();
 		}
         
-        // TODO: I think update and revalidation should move into an own thread
+        try {
+			shittyRef = CapiUtil.lookupOrCreateContainer(
+					shittyContainerName,
+					uri,
+					Arrays.asList(new FifoCoordinator()),
+					null, capi);
+		} catch (MzsCoreException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+        
+        try {
+			sellRef = CapiUtil.lookupOrCreateContainer(
+					sellContainerName,
+					uri,
+					Arrays.asList(new FifoCoordinator()),
+					null, capi);
+		} catch (MzsCoreException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+ 		
+        //Schedule a job for the event-dispatching thread:
+        //creating and showing this application's GUI.
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                createAndShowGUI();
+            }
+        });
+        
+ 
+        // TODO: I think update and revalidation should move into an own thread?
         while(true) {
-	        try {
-				readEntries = capi.take(cRef, FifoCoordinator.newSelector(), RequestTimeout.INFINITE, null);
+        	
+        	//Parts list
+        	
+        	ArrayList<Component>readEntries;
+        	
+        	//This is quite ugly, but i don't care right now
+        	int part[] = partsTypeList.getSelectedIndices();
+        	Integer count = 0;
+        	for (int i = 0; i < part.length; i++) {
+	        	switch(i) {
+	        	case (1):
+	        		try {
+	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("CPU", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
+	    			} catch (MzsCoreException e) {
+	    				 System.out.println("transaction timeout. retry.");
+	                     continue;
+	    			}
+	        		count += readEntries.size();
+	        	case (2):
+	        		try {
+	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("GPU", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
+	    			} catch (MzsCoreException e) {
+	    				 System.out.println("transaction timeout. retry.");
+	                     continue;
+	    			}
+	        		count += readEntries.size();
+	        	case (3):
+	        		try {
+	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("RAM", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
+	    			} catch (MzsCoreException e) {
+	    				 System.out.println("transaction timeout. retry.");
+	                     continue;
+	    			}
+	        		count += readEntries.size();
+	        	case (4):
+	        		try {
+	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("MAINBOARD", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
+	    			} catch (MzsCoreException e) {
+	    				 System.out.println("transaction timeout. retry.");
+	                     continue;
+	    			}
+	        		count += readEntries.size();
+	        	}
+        	}
+        	
+        	partsCount.setText(count.toString());
+        	partsCount.repaint();
+        	
+        	//Computer lists
+        	ArrayList<Computer>compEntries;
+        	
+        	//This is quite ugly, but i don't care right now
+			try {
+				readEntries = capi.read(sellRef, AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
 			} catch (MzsCoreException e) {
 				 System.out.println("transaction timeout. retry.");
                  continue;
 			}
-	        
-	        partsCount.setText(readEntries.get(0).toString());
-	        partsCount.repaint();
+			
+			//TODO: this is where i left
+			//shippedProducts = ;
+        	
+        	//This is quite ugly, but i don't care right now
+			try {
+				readEntries = capi.read(shittyRef, AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
+			} catch (MzsCoreException e) {
+				 System.out.println("transaction timeout. retry.");
+                 continue;
+			}
+			
+			//TODO: this is where i left
+			//shippedProducts =;
+
 	        
 	        try {
-				Thread.sleep(1000);
+				Thread.sleep(200);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

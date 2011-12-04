@@ -25,7 +25,6 @@ public class Computer implements Serializable {
 	private final List<Ram> ram;
 	private final GPU gpu;
 	
-	// will be assigned by Tester ??
 	private boolean defect;
 	
 	public Computer(String makerID, Mainboard mainboard, CPU cpu, List<Ram> ram, GPU gpu) throws BuildComputerException {
@@ -46,6 +45,7 @@ public class Computer implements Serializable {
 		this.gpu = gpu;
 		
 		// COMPUTE DEFECTS; check if components got a defect (or let the tester do it :D)
+		// Let the tester do it, else we never get defective computers anyway ;)
 		
 	}
 
@@ -59,5 +59,21 @@ public class Computer implements Serializable {
 	
 	public void setDefect(boolean defect) {
 		this.defect = defect;
+	}
+	
+	public CPU getCpu() {
+		return cpu;
+	}
+
+	public Mainboard getMainboard() {
+		return mainboard;
+	}
+
+	public List<Ram> getRam() {
+		return ram;
+	}
+
+	public GPU getGpu() {
+		return gpu;
 	}
 }

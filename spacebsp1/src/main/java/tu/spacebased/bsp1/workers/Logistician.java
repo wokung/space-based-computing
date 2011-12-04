@@ -37,6 +37,8 @@ public class Logistician {
 	private static ContainerReference shittyRef = null;
 	private static ContainerReference sellRef = null;
     private static String containerName = "store";
+    private static String shittyContainerName = "shitty";
+    private static String sellContainerName = "sell";
 	
 	public void main(String [] args)
 	{
@@ -64,7 +66,7 @@ public class Logistician {
 		
 		try {
 			shittyRef = CapiUtil.lookupOrCreateContainer(
-					containerName,
+					shittyContainerName,
 					uri,
 					Arrays.asList(new AnyCoordinator()),
 					null, capi);
@@ -75,7 +77,7 @@ public class Logistician {
 		
 		try {
 			sellRef = CapiUtil.lookupOrCreateContainer(
-					containerName,
+					sellContainerName,
 					uri,
 					Arrays.asList(new AnyCoordinator()),
 					null, capi);
@@ -88,7 +90,7 @@ public class Logistician {
 	
 		for (;;) {
 			try {
-				computerList = capi.take(cRef, LabelCoordinator.newSelector("computer",1), RequestTimeout.INFINITE, null);
+				computerList = capi.take(cRef, LabelCoordinator.newSelector("testedComputer",1), RequestTimeout.INFINITE, null);
 			} catch (MzsCoreException e) {
 				 System.out.println("this should never happen :S");
 			}
