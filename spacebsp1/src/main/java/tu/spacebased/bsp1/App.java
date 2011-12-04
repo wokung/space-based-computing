@@ -31,21 +31,29 @@ public class App
 			e1.printStackTrace();
 		}
         String containerName = "store";
-        
-        TransactionReference transaction = new TransactionReference("store", uri);
+        String shittyContainerName = "shitty";
+        String sellContainerName = "sell";
         
         MzsCore core = DefaultMzsCore.newInstance();
         Capi capi = new Capi(core);
+        
+        TransactionReference transaction = null;
+		try {
+			transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
+		} catch (MzsCoreException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 
-        try {
-				cRef = capi.createContainer(
-					containerName,
-					uri,
-					MzsConstants.Container.UNBOUNDED,
-					null,
-					Arrays.asList(new KeyCoordinator(), new LabelCoordinator(), new FifoCoordinator()),
-					null); //transaction could be a real TransactionRefernce if
-							// we need commit-style
+	    try {
+			cRef = capi.createContainer(
+				containerName,
+				uri,
+				MzsConstants.Container.UNBOUNDED,
+				null,
+				Arrays.asList(new KeyCoordinator(), new LabelCoordinator(), new FifoCoordinator()),
+				null); //transaction could be a real TransactionRefernce if
+						// we need commit-style
 		} catch (ContainerNameNotAvailableException e) {
 			try {
 				cRef = capi.lookupContainer(containerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
@@ -65,21 +73,83 @@ public class App
 		} catch (MzsCoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}      
+		}
+        
+        try {
+			cRef = capi.createContainer(
+				shittyContainerName,
+				uri,
+				MzsConstants.Container.UNBOUNDED,
+				null,
+				Arrays.asList(new KeyCoordinator(), new LabelCoordinator(), new FifoCoordinator()),
+				null); //transaction could be a real TransactionRefernce if
+						// we need commit-style
+   		} catch (ContainerNameNotAvailableException e) {
+   			try {
+   				cRef = capi.lookupContainer(shittyContainerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
+   				capi.destroyContainer(cRef, null);
+   				cRef = capi.createContainer(
+   						shittyContainerName,
+   						uri,
+   						MzsConstants.Container.UNBOUNDED,
+   						null,
+   						Arrays.asList(new FifoCoordinator()),
+   						null); //transaction could be a real TransactionRefernce if
+   								// we need commit-style
+   			} catch (MzsCoreException e1) {
+   				// TODO Auto-generated catch block
+   				e1.printStackTrace();
+   			}
+   		} catch (MzsCoreException e) {
+   			// TODO Auto-generated catch block
+   			e.printStackTrace();
+   		}
+        
+        try {
+			cRef = capi.createContainer(
+				sellContainerName,
+				uri,
+				MzsConstants.Container.UNBOUNDED,
+				null,
+				Arrays.asList(new KeyCoordinator(), new LabelCoordinator(), new FifoCoordinator()),
+				null); //transaction could be a real TransactionRefernce if
+						// we need commit-style
+   		} catch (ContainerNameNotAvailableException e) {
+   			try {
+   				cRef = capi.lookupContainer(sellContainerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
+   				capi.destroyContainer(cRef, null);
+   				cRef = capi.createContainer(
+   						sellContainerName,
+   						uri,
+   						MzsConstants.Container.UNBOUNDED,
+   						null,
+   						Arrays.asList(new FifoCoordinator()),
+   						null); //transaction could be a real TransactionRefernce if
+   								// we need commit-style
+   			} catch (MzsCoreException e1) {
+   				// TODO Auto-generated catch block
+   				e1.printStackTrace();
+   			}
+   		} catch (MzsCoreException e) {
+   			// TODO Auto-generated catch block
+   			e.printStackTrace();
+   		}
+        
+        Integer i = 0;
 
-        Entry entry = new Entry(0, LabelCoordinator.newCoordinationData("uniqueId"));
+        Entry entry = new Entry(i, KeyCoordinator.newCoordinationData("uniqueId"));
         
     	try {
-			capi.write(cRef, 0, null, entry);
+			capi.write(cRef, MzsConstants.RequestTimeout.INFINITE, null, entry);
 		} catch (MzsCoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	
-    	entry = new Entry(0, LabelCoordinator.newCoordinationData("uniqueWorkerId"));
+
+    	entry = new Entry(i, KeyCoordinator.newCoordinationData("uniqueWorkerId"));
         
     	try {
-			capi.write(cRef, 0, null, entry);
+			capi.write(cRef, MzsConstants.RequestTimeout.INFINITE, null, entry);
 		} catch (MzsCoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

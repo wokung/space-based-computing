@@ -189,38 +189,26 @@ public class Gui implements ActionListener {
         String sellContainerName = "sell";
         
         try {
-			cRef = CapiUtil.lookupOrCreateContainer(
-					containerName,
-					uri,
-					Arrays.asList(new FifoCoordinator()),
-					null, capi);
+			cRef = capi.lookupContainer(containerName, uri, 3000, null);
 		} catch (MzsCoreException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
         
         try {
-			shittyRef = CapiUtil.lookupOrCreateContainer(
-					shittyContainerName,
-					uri,
-					Arrays.asList(new FifoCoordinator()),
-					null, capi);
+			shittyRef = capi.lookupContainer(shittyContainerName, uri, 3000, null);
 		} catch (MzsCoreException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
         
         try {
-			sellRef = CapiUtil.lookupOrCreateContainer(
-					sellContainerName,
-					uri,
-					Arrays.asList(new FifoCoordinator()),
-					null, capi);
+			sellRef = capi.lookupContainer(sellContainerName, uri, 3000, null);
 		} catch (MzsCoreException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
- 		
+        
         //Schedule a job for the event-dispatching thread:
         //creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -350,8 +338,6 @@ public class Gui implements ActionListener {
     	makerID = uid.toString();
 		Producer prod = new Producer(quantity, makerID, errorRate, components);
 		
-		//TODO: Is this then already a thread?
-		//prod.run();
     }
 
 	@Override
