@@ -235,14 +235,14 @@ public class Gui implements ActionListener {
 	        	switch(part) {
 	        	case (0):
 	        		try {
-	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("CPU", MzsConstants.Selecting.COUNT_MAX), RequestTimeout.TRY_ONCE, null);
+	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("CPU", MzsConstants.Selecting.COUNT_MAX), 200, null);
 	    			} catch (MzsCoreException e) {
 	    				 System.out.println("transaction timeout. retry.");
 	    			}
 	        	break;
 	        	case (1):
 	        		try {
-	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("1", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.TRY_ONCE, null);
+	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("GPU", MzsConstants.Selecting.COUNT_ALL), 200, null);
 	    			} catch (MzsCoreException e) {
 	    				 System.out.println("transaction timeout. retry.");
 	                     continue;
@@ -250,7 +250,7 @@ public class Gui implements ActionListener {
 	        	break;
 	        	case (2):
 	        		try {
-	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("2", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.TRY_ONCE, null);
+	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("MAINBOARD", MzsConstants.Selecting.COUNT_ALL), 200, null);
 	    			} catch (MzsCoreException e) {
 	    				 System.out.println("transaction timeout. retry.");
 	                     continue;
@@ -258,7 +258,7 @@ public class Gui implements ActionListener {
 	        	break;
 	        	case (3):
 	        		try {
-	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("3", MzsConstants.Selecting.COUNT_ALL), RequestTimeout.TRY_ONCE, null);
+	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("RAM", MzsConstants.Selecting.COUNT_ALL), 200, null);
 	    			} catch (MzsCoreException e) {
 	    				 System.out.println("transaction timeout. retry.");
 	                     continue;
