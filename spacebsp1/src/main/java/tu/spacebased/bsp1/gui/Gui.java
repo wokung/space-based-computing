@@ -153,8 +153,12 @@ public class Gui implements ActionListener {
         showDetailsFailed.addActionListener( new ActionListener() { 
         	public void actionPerformed( ActionEvent e ) { 
         		// modificate failedProducts and showDetailsFailed     
-        		if ((failedProducts.getSelectedValue() != null) && (!failedProducts.getSelectedValue().toString().equals("None"))) {
-        			new GuiTable(failedProducts.getSelectedValue().toString(), failedComputerEntries.get(failedProducts.getSelectedIndex()));
+        		if ((failedProducts.getSelectedValue() != null)) {
+        			if (!failedProducts.getSelectedValue().toString().equals("None")) {
+        				new GuiTable(failedProducts.getSelectedValue().toString(), failedComputerEntries.get(failedProducts.getSelectedIndex()));
+        			} else {
+        				failureNotification.setText("Cant Show Info for None");
+        			}
         			
         		} else {
         			failureNotification.setText("NO COMPUTER SELECTED TO SHOW INFO");
@@ -222,8 +226,6 @@ public class Gui implements ActionListener {
  			e1.printStackTrace();
  		}
         String containerName = "store";
-        String shittyContainerName = "shitty";
-        String sellContainerName = "sell";
         
         try {
 			cRef = capi.lookupContainer(containerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
