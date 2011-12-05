@@ -1,0 +1,5 @@
+#surefire
+#Sun Dec 04 20:25:10 CET 2011
+user.dir=/home/philipp/workspace/space-based-computing/spacebsp1
+localRepository=/home/philipp/.m2/repository
+basedir=/home/philipp/workspace/space-based-computing/spacebsp1
