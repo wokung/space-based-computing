@@ -5,23 +5,11 @@ import javax.swing.*;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.UUID;
-
-import org.mozartspaces.capi3.*;
-import org.mozartspaces.core.Capi;
-import org.mozartspaces.core.ContainerReference;
-import org.mozartspaces.core.DefaultMzsCore;
-import org.mozartspaces.core.MzsConstants;
-import org.mozartspaces.core.MzsConstants.RequestTimeout;
-import org.mozartspaces.core.MzsCore;
-import org.mozartspaces.core.MzsCoreException;
 
 import tu.spacebased.bsp1.components.Component;
 import tu.spacebased.bsp1.components.Computer;
