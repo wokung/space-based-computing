@@ -2,7 +2,20 @@ package tu.spacebased.bsp1.workers;
 
 import java.util.ArrayList;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.rmi.AlreadyBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
+
+
+import tu.spacebased.bsp1.IRemote;
+import tu.spacebased.bsp1.Server;
 import tu.spacebased.bsp1.components.Computer;
+import tu.spacebased.bsp1.exceptions.ServerNotFoundException;
 
 /**
  * Es soll in jeder Abteilung (Produktion, Montage, Test, Logistik) festgehalten werden, welche(r) Mitarbeiter/-in die Arbeiten ausgef�hrt hat.
@@ -17,13 +30,60 @@ import tu.spacebased.bsp1.components.Computer;
  * Speichern Sie bei jedem Computer, ob dieser defekt ist oder nicht.
  * @author Kung
  */
-public class Tester {
+public class Tester extends Worker {
+	protected Tester() throws RemoteException {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
 	private static Integer id;
-	// For Container in space
+	
+	private static ArrayList<String> serverNames = new ArrayList<String>();
+	private static Registry reg = null;
+    private static String host = "localhost";
+    private static int port = 11203;
+	
     
 	public static void main(String[] args)
 	{
-		Tester tester = new Tester();
+		serverNames.add("Assembler");
+		serverNames.add("Tester");
+		serverNames.add("Logistician");
+		// CONNECT ASSEMLBER WITH REGISTRY
+		
+		try {
+			Server ns= new Tester();
+			System.out.println("versuche getRegistry: ");
+			reg = LocateRegistry.getRegistry(host, port);
+			System.out.println("done. versuche binding: ");
+			//reg.rebind(bindingName, ns);
+			reg.bind("Tester", ns);
+			System.out.println("done.");
+			BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+			
+		    System.out.println("Server up. Hit enter to exit.");
+			try {
+				stdIn.readLine();	//warten auf enter
+			} catch (IOException e) {
+				System.out.println("Es ist ein Fehler aufgetreten. Die Anwendung wurde beendet.");
+				UnicastRemoteObject.unexportObject(ns,true);
+				return;
+			}			
+			UnicastRemoteObject.unexportObject(ns,true);
+		} catch (RemoteException e) {
+			System.out.println("Es ist ein Verbindungsproblem aufgetreten. Die Anwendung wurde beendet");
+			return;
+		} catch (AlreadyBoundException e) {
+			System.out.println("Server wurde bereits gebunden.");
+			return;
+		}
+		
+		try {
+			Tester tester = new Tester();
+		} catch (RemoteException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		// do some command checking
 		
@@ -42,7 +102,7 @@ public class Tester {
 			System.err.println("Usage: java Tester 'workerId' '0|1'");
 			System.exit(1);
 		}
-		
+
 		//TODO: get unique id
 		
 		// check if arguments are correct
@@ -77,7 +137,7 @@ public class Tester {
 					computer.setDefect(defect);
 						
 					//TODO: put computer as pretested
-					
+					// WRUITE
 				} else {
 					System.out.println("DEBUG: Computerlist is Empty, retrying ");
 				}
@@ -88,8 +148,10 @@ public class Tester {
 			for (;;) {
 				
 				boolean defect;
-				
+
 				//TODO: get pretested Computer
+
+				//READ
 
 				if (!computerList.isEmpty()) {
 					Computer computer = computerList.get(0);
@@ -116,6 +178,8 @@ public class Tester {
 					computer.setDefect(defect);
 						
 					//TODO put tested computer
+					//WRITE
+
 				} else {
 					System.out.println("DEBUG: Computerlist is Empty, retrying ");
 				}
@@ -128,5 +192,30 @@ public class Tester {
 	// GETTER SETTER
 	public Integer getId(){
 		return id;
+	}
+
+	@Override
+	public String getUrl() throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void printMsg(String msg) throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void unregisterServer(String url, String tempURL)
+			throws RemoteException, ServerNotFoundException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public IRemote getRemote() throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
