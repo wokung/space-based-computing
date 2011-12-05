@@ -1,21 +1,6 @@
 package tu.spacebased.bsp1.workers;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-
-import org.mozartspaces.capi3.DuplicateKeyException;
-import org.mozartspaces.capi3.KeyCoordinator;
-import org.mozartspaces.capi3.LabelCoordinator;
-import org.mozartspaces.core.Capi;
-import org.mozartspaces.core.ContainerReference;
-import org.mozartspaces.core.DefaultMzsCore;
-import org.mozartspaces.core.Entry;
-import org.mozartspaces.core.MzsConstants;
-import org.mozartspaces.core.MzsCore;
-import org.mozartspaces.core.MzsCoreException;
-import org.mozartspaces.core.TransactionReference;
-import org.mozartspaces.core.MzsConstants.RequestTimeout;
 
 import tu.spacebased.bsp1.components.Computer;
 
@@ -31,36 +16,10 @@ import tu.spacebased.bsp1.components.Computer;
  */
 public class Logistician extends Worker {
 	private static Integer id;
-	// For Container in space
-	private static Capi capi;
-	private static ContainerReference cRef = null;
-//	private static ContainerReference shittyRef = null;
-//	private static ContainerReference sellRef = null;
-    private static String containerName = "store";
-
-    private static String shittyContainerName = "shitty";
-    private static String sellContainerName = "sell";
-    private static TransactionReference transaction = null;
-    
-//    private static String shittyContainerName = "shitty";
-//    private static String sellContainerName = "sell";
 	
 	public static void main(String [] args)
 	{
-		Runtime.getRuntime().addShutdownHook(new Thread()
-        {
-            @Override
-            public void run()
-            {
-            	try {
-        			capi.take(cRef, KeyCoordinator.newSelector(id.toString()), RequestTimeout.INFINITE, null);
-        		} catch (MzsCoreException e) {
-        			 System.out.println("this should never happen :S");
-        		}
-            }
-        });
-		
-		Logistician logistician = new Logistician();
+//		Logistician logistician = new Logistician();
 		// do some command checking
 		
 		int firstArg = -1;
@@ -77,75 +36,13 @@ public class Logistician extends Worker {
 			System.exit(1);
 		}
 		
-		MzsCore core = DefaultMzsCore.newInstance();
-	    capi = new Capi(core);
-	    
-	    URI uri = null;
-		try {
-			uri = new URI("xvsm://localhost:9877");
-		} catch (URISyntaxException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		try {
-			cRef = capi.lookupContainer(
-					containerName,
-					uri,
-					MzsConstants.RequestTimeout.INFINITE,
-					null);
-		} catch (MzsCoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-//		try {
-//			shittyRef = capi.lookupContainer(
-//					shittyContainerName,
-//					uri,
-//					MzsConstants.RequestTimeout.INFINITE,
-//					null);
-//		} catch (MzsCoreException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
-//		
-//		try {
-//			sellRef = capi.lookupContainer(
-//					sellContainerName,
-//					uri,
-//					MzsConstants.RequestTimeout.INFINITE,
-//					null);
-//		} catch (MzsCoreException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
-		
-		// check if arguments are correct
-		// try to insert worker id into space, exit if not unique
-		id = firstArg;
-		
-		Entry entry = new Entry(logistician.getClass(), KeyCoordinator.newCoordinationData(id.toString()));
-        
-    	try {
-			capi.write(cRef, MzsConstants.RequestTimeout.TRY_ONCE, null, entry);
-    	} catch (DuplicateKeyException dup) {
-    		System.out.println("ERROR: A Worker with this key already exists, take another one!");
-    		//TODO: cleanup!
-    		return;
-		} catch (MzsCoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//TODO: get uniqueID
 	
 		ArrayList<Computer> computerList = null;
 		
 		for (;;) {
-			try {
-				computerList = capi.take(cRef, LabelCoordinator.newSelector("testedComputer",1), RequestTimeout.INFINITE, null);
-			} catch (MzsCoreException e) {
-				 System.out.println("this should never happen :S");
-			}
+			
+			//TODO: get computer
 			
 			if (!computerList.isEmpty()) {
 				Computer computer = computerList.get(0);
@@ -156,41 +53,9 @@ public class Logistician extends Worker {
 				computer.setLogisticianID(id);
 				
 				if (computer.isDefect()) {
-/**
-					Entry compEntry = new Entry(computer);
-					
-					try {
-						transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
-						capi.write(compEntry, shittyRef, RequestTimeout.INFINITE, transaction);
-						capi.commitTransaction(transaction);
-*/
-					Entry compEntry = new Entry(computer, LabelCoordinator.newCoordinationData("shitty"));
-					
-					try {
-						capi.write(compEntry, cRef, RequestTimeout.INFINITE, null);
-
-					} catch (MzsCoreException e) {
-						 System.out.println("this should never happen :S");
-					}
-					System.out.println("DEBUG: WROTE DEFECT TRUE TO COMPUTER NR: " + computer.getMakerID());
+					//TODO insert shitty
 				} else {
-/**
-					Entry compEntry = new Entry(computer);
-					
-					try {
-						transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
-						capi.write(compEntry, sellRef, RequestTimeout.INFINITE, transaction);
-						capi.commitTransaction(transaction);
-*/
-					Entry compEntry = new Entry(computer, LabelCoordinator.newCoordinationData("sell"));
-					
-					try {
-						capi.write(compEntry, cRef, RequestTimeout.INFINITE, null);
-
-					} catch (MzsCoreException e) {
-						 System.out.println("this should never happen :S");
-					}
-					System.out.println("DEBUG: WROTE DEFECT FALSE TO COMPUTER NR: " + computer.getMakerID());
+					//TODO insert sell
 				}
 			} else {
 				System.out.println("DEBUG: Computerlist is Empty, retrying ");
