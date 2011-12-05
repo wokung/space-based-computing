@@ -22,11 +22,9 @@ import org.mozartspaces.core.MzsConstants.RequestTimeout;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreException;
 
-import tu.spacebased.bsp1.components.CPU;
 import tu.spacebased.bsp1.components.Component;
 import tu.spacebased.bsp1.components.Computer;
 import tu.spacebased.bsp1.workers.Producer;
-import tu.spacebased.bsp1.workers.Producer.Components;
 
 public class Gui implements ActionListener {
 	/**
@@ -56,6 +54,9 @@ public class Gui implements ActionListener {
     private static JTextField partsCount = new JTextField("123");
     private static JTextField failureNotification = new JTextField(30);
     
+    private static ArrayList<Computer> selledComputerEntries = null;
+    private static ArrayList<Computer> failedComputerEntries = null;
+    
 	// For Container in space
 	static ContainerReference cRef = null;
 	static ContainerReference shittyRef = null;
@@ -79,8 +80,8 @@ public class Gui implements ActionListener {
         // TODO: these are dummies - add actual 'ListModels' to the Lists 
         String worker[] = {"CPU","GPU","MAINBOARD", "RAM"};
         String parts[] = {"CPU", "GPU", "MAINBOARD", "RAM"};
-        String shipped[] = {"1", "2", "3"};
-        String failed[] = {"1", "2", "3"};
+        String shipped[] = {"None"};
+        String failed[] = {"None"};
        
         workerList = new JList(worker);
     	partsTypeList = new JList(parts);
@@ -130,14 +131,24 @@ public class Gui implements ActionListener {
         showDetailsShipped.addActionListener( new ActionListener() { 
         	public void actionPerformed( ActionEvent e ) { 
         		// modificate shippedProducts and showDetailsShipped
-        		
+        		// UEBERGEBE DEM JTABLE DIE DATEN DES AUSGEWAEHLTN COMPUTERS
+        		if ((shippedProducts.getSelectedValue() != null) && (!shippedProducts.getSelectedValue().toString().equals("None"))) {
+        			new GuiTable(shippedProducts.getSelectedValue().toString(), selledComputerEntries.get(Integer.parseInt(shippedProducts.getSelectedValue().toString()) - 1));
+        		} else {
+        			failureNotification.setText("NO COMPUTER SELECTED TO SHOW INFO");
+        		}
         	}
     	} );
         
         showDetailsFailed.addActionListener( new ActionListener() { 
         	public void actionPerformed( ActionEvent e ) { 
         		// modificate failedProducts and showDetailsFailed     
-        		
+        		if ((failedProducts.getSelectedValue() != null) && (!failedProducts.getSelectedValue().toString().equals("None"))) {
+        			//new GuiTable(failedProducts.getSelectedValue().toString(), failedComputerEntries.get(Integer.parseInt(failedComputerEntries.getSelectedValue().toString()) - 1));
+        			
+        		} else {
+        			failureNotification.setText("NO COMPUTER SELECTED TO SHOW INFO");
+        		}
         	}
     	} );
 
@@ -295,17 +306,34 @@ public class Gui implements ActionListener {
 			try {
 				compEntries = capi.read(sellRef, AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
 			} catch (MzsCoreException e) {
-				 System.out.println("transaction timeout. retry.");
+				 System.out.println("transaction timeout. retry." + e.toString());
                  continue;
 			}
-
-			if (!compEntries.isEmpty()) {
-				Iterator it = compEntries.iterator();
 			
+			System.out.println("DEBUG: Trying to find computers for sellRef: ");
+			
+			if (compEntries != null) {
+				
+				System.out.println("DEBUG: Found computers for sellRef, proceeding with iterator: " + compEntries.size());
+				
+				Iterator<Computer> it = compEntries.iterator();
+				
+				String temp[] = {};
+				
+				int z = 0;
 				while (it.hasNext()) {
 					Computer comp = (Computer) it.next();
+					//String shipped[] = {"None"};
 					// HERE GET COMPUTER ID ? list all computers as ids and show details when choosen ?
-					//int[] temp = { comp.getMakerID()};
+					// DO SOMETHING WITH COMP ??
+					temp[z] = String.valueOf(z + 1);
+					z++;
+				}
+				
+				if (temp.length > 0) {
+					shippedProducts = new JList(temp);
+					shippedProducts.repaint();
+					selledComputerEntries = compEntries;
 				}
 			}
 	
@@ -313,15 +341,17 @@ public class Gui implements ActionListener {
 			try {
 				compEntries2 = capi.read(shittyRef, AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
 			} catch (MzsCoreException e) {
-				 System.out.println("transaction timeout. retry.");
+				 System.out.println("transaction timeout. retry." + e.toString());
                  continue;
 			}
-			
-			if (!compEntries2.isEmpty()) {
+			/**
+			if (compEntries2 != null) {
 				failedProducts = new JList((ListModel) compEntries2);
 				failedProducts.repaint();
+				
+				failedComputerEntries = compEntries;
 			}
-
+			*/
 	        try {
 				Thread.sleep(200);
 			} catch (InterruptedException e) {

@@ -21,6 +21,8 @@ public class Computer implements Serializable {
 	private int testerId;
 	private int logisticianId;
 	
+	private String computerId;
+	
 	private final CPU cpu;
 	private final Mainboard mainboard;
 	private final List<Ram> ram;
@@ -52,6 +54,10 @@ public class Computer implements Serializable {
 
 	public int getMakerID() {
 		return makerId;
+	}
+	
+	public String getComputerID() {
+		return computerId;
 	}
 	
 	public int getTesterID() {

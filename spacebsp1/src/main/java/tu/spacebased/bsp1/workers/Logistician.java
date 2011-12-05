@@ -138,7 +138,7 @@ public class Logistician extends Worker {
 		}
 	
 		ArrayList<Computer> computerList = null;
-	
+		
 		for (;;) {
 			try {
 				computerList = capi.take(cRef, LabelCoordinator.newSelector("testedComputer",1), RequestTimeout.INFINITE, null);
@@ -146,7 +146,7 @@ public class Logistician extends Worker {
 				 System.out.println("this should never happen :S");
 			}
 			Computer computer = computerList.get(0);
-			
+			System.out.println("DEBUG: GOT COMPUTERLIST WITH COMPUTER: " + computer.getMakerID());
 			// keep track of Logistician that processed it;
 			computer.setLogisticianID(id);
 			
@@ -158,6 +158,7 @@ public class Logistician extends Worker {
 				} catch (MzsCoreException e) {
 					 System.out.println("this should never happen :S");
 				}
+				System.out.println("DEBUG: WROTE DEFECT TRUE TO COMPUTER NR: " + computer.getMakerID());
 			} else {
 				Entry compEntry = new Entry(computer);
 				
@@ -166,6 +167,7 @@ public class Logistician extends Worker {
 				} catch (MzsCoreException e) {
 					 System.out.println("this should never happen :S");
 				}
+				System.out.println("DEBUG: WROTE DEFECT FALSE TO COMPUTER NR: " + computer.getMakerID());
 			}
 		}
 	}
