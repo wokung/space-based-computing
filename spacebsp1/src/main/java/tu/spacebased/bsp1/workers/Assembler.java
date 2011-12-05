@@ -137,6 +137,7 @@ public class Assembler extends Worker {
 			//This one is trickier, we actually need FIFO and LabelSelector, this is not possible... query could work, but how?
 			// this should be possible by adding 2 coordinators: List<Coord> xx = ... xx.add(fifo), xx.add(keycord)
 			try {
+				System.out.println("TRYING TO GET MAINBOARDLIST");
 				mainboardList = capi.take(cRef, LabelCoordinator.newSelector(Components.MAINBOARD.toString(),1), RequestTimeout.INFINITE, null);
 			} catch (MzsCoreException e) {
 				 System.out.println("this should never happen :S");
@@ -145,9 +146,12 @@ public class Assembler extends Worker {
 			//these checks should never trigger...
 			if (!mainboardList.isEmpty()) {
 				mainboard = mainboardList.get(0);
+			} else {
+				System.out.println("EMPTY MAINBOARDLIST :(");
 			}
 			
 			try {
+				System.out.println("TRYING TO GET CPULIST");
 				cpuList = capi.take(cRef, LabelCoordinator.newSelector(Components.CPU.toString(),1), RequestTimeout.INFINITE, null);
 			} catch (MzsCoreException e) {
 				 System.out.println("this should never happen :S");
@@ -155,7 +159,10 @@ public class Assembler extends Worker {
 			CPU cpu = null;
 			if (!cpuList.isEmpty()) {
 				cpu = cpuList.get(0);
+			}  else {
+				System.out.println("EMPTY cpuList :(");
 			}
+			
 			
 			//TODO: i don't like the look of this, but i don't care right now, time is ticking
 			try {

@@ -156,6 +156,8 @@ public class Gui implements ActionListener {
         		if ((failedProducts.getSelectedValue() != null)) {
         			if (!failedProducts.getSelectedValue().toString().equals("None")) {
         				new GuiTable(failedProducts.getSelectedValue().toString(), failedComputerEntries.get(failedProducts.getSelectedIndex()));
+        			} else {
+        				failureNotification.setText("Cant Show Info for None");
         			}
         			
         		} else {
@@ -376,9 +378,9 @@ public class Gui implements ActionListener {
 				}
 				if (listModel1 != null) {
 					if (!listModel1.isEmpty()) {
-						failedProducts = new JList(listModel1);
-						failedProducts.repaint();
-						statisticsPanel2.repaint();
+						//failedProducts = new JList(listModel1);
+						//failedProducts.repaint();
+						//statisticsPanel2.repaint();
 						failedComputerEntries = compEntries;
 					}
 				}
