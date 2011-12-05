@@ -1,13 +1,23 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" output="target/classes" path="src/main/java"/>
-	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>
-	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER"/>
-	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6">
-		<attributes>
-			<attribute name="owner.project.facets" value="java"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="src" path="src/test/java" output="target/test-classes" including="**/*.java"/>
+  <classpathentry kind="src" path="src/main/java" including="**/*.java"/>
+  <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="var" path="M2_REPO/commons-beanutils/commons-beanutils/1.7.0/commons-beanutils-1.7.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-beanutils/commons-beanutils-core/1.8.0/commons-beanutils-core-1.8.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-configuration/commons-configuration/1.6/commons-configuration-1.6.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-digester/commons-digester/1.8/commons-digester-1.8.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.4/commons-lang-2.4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/net/jcip/jcip-annotations/1.0/jcip-annotations-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/ch/qos/logback/logback-classic/0.9.29/logback-classic-0.9.29.jar"/>
+  <classpathentry kind="var" path="M2_REPO/ch/qos/logback/logback-core/0.9.29/logback-core-0.9.29.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mozartspaces/mozartspaces-capi3-api/2.1-SNAPSHOT/mozartspaces-capi3-api-2.1-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mozartspaces/mozartspaces-capi3-javanative/2.1-SNAPSHOT/mozartspaces-capi3-javanative-2.1-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mozartspaces/mozartspaces-core-api/2.1-SNAPSHOT/mozartspaces-core-api-2.1-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mozartspaces/mozartspaces-core-common/2.1-SNAPSHOT/mozartspaces-core-common-2.1-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mozartspaces/mozartspaces-runtime/2.1-SNAPSHOT/mozartspaces-runtime-2.1-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.6.2/slf4j-api-1.6.2.jar"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 </classpath>

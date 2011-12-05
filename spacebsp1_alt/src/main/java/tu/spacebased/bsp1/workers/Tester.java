@@ -1,7 +1,15 @@
 package tu.spacebased.bsp1.workers;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.rmi.AlreadyBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
 import org.mozartspaces.capi3.DuplicateKeyException;
@@ -16,7 +24,11 @@ import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreException;
 import org.mozartspaces.core.MzsConstants.RequestTimeout;
 
+import tu.spacebased.bsp1.App;
+import tu.spacebased.bsp1.IRemote;
+import tu.spacebased.bsp1.Server;
 import tu.spacebased.bsp1.components.Computer;
+import tu.spacebased.bsp1.exceptions.ServerNotFoundException;
 
 /**
  * Es soll in jeder Abteilung (Produktion, Montage, Test, Logistik) festgehalten werden, welche(r) Mitarbeiter/-in die Arbeiten ausgef�hrt hat.
@@ -31,29 +43,60 @@ import tu.spacebased.bsp1.components.Computer;
  * Speichern Sie bei jedem Computer, ob dieser defekt ist oder nicht.
  * @author Kung
  */
-public class Tester {
+public class Tester extends Worker {
+	protected Tester() throws RemoteException {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
 	private static Integer id;
-	// For Container in space
-	private static Capi capi;
-	private static ContainerReference cRef = null;
-    private static String containerName = "store";
+	
+	private static ArrayList<String> serverNames = new ArrayList<String>();
+	private static Registry reg = null;
+    private static String host = "localhost";
+    private static int port = 11203;
+	
     
 	public static void main(String[] args)
 	{
-		Runtime.getRuntime().addShutdownHook(new Thread()
-        {
-            @Override
-            public void run()
-            {
-            	try {
-        			capi.take(cRef, KeyCoordinator.newSelector(id.toString()), RequestTimeout.INFINITE, null);
-        		} catch (MzsCoreException e) {
-        			 System.out.println("this should never happen :S");
-        		}
-            }
-        });
+		serverNames.add("Assembler");
+		serverNames.add("Tester");
+		serverNames.add("Logistician");
+		// CONNECT ASSEMLBER WITH REGISTRY
 		
-		Tester tester = new Tester();
+		try {
+			Server ns= new Tester();
+			System.out.println("versuche getRegistry: ");
+			reg = LocateRegistry.getRegistry(host, port);
+			System.out.println("done. versuche binding: ");
+			//reg.rebind(bindingName, ns);
+			reg.bind("Tester", ns);
+			System.out.println("done.");
+			BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+			
+		    System.out.println("Server up. Hit enter to exit.");
+			try {
+				stdIn.readLine();	//warten auf enter
+			} catch (IOException e) {
+				System.out.println("Es ist ein Fehler aufgetreten. Die Anwendung wurde beendet.");
+				UnicastRemoteObject.unexportObject(ns,true);
+				return;
+			}			
+			UnicastRemoteObject.unexportObject(ns,true);
+		} catch (RemoteException e) {
+			System.out.println("Es ist ein Verbindungsproblem aufgetreten. Die Anwendung wurde beendet");
+			return;
+		} catch (AlreadyBoundException e) {
+			System.out.println("Server wurde bereits gebunden.");
+			return;
+		}
+		
+		try {
+			Tester tester = new Tester();
+		} catch (RemoteException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		// do some command checking
 		
@@ -73,46 +116,10 @@ public class Tester {
 			System.exit(1);
 		}
 		
-		// get the last Tester from space and check if the id is already initialized
-		
-		MzsCore core = DefaultMzsCore.newInstance();
-	    capi = new Capi(core);
-	    
-	    URI uri = null;
-		try {
-			uri = new URI("xvsm://localhost:9877");
-		} catch (URISyntaxException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		try {
-			cRef = capi.lookupContainer(
-					containerName,
-					uri,
-					MzsConstants.RequestTimeout.INFINITE,
-					null);
-		} catch (MzsCoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 		
 		// check if arguments are correct
 		// try to insert worker id into space, exit if not unique
 		id = firstArg;
-		
-		Entry entry = new Entry(tester.getClass(), KeyCoordinator.newCoordinationData(id.toString()));
-        
-    	try {
-			capi.write(cRef, MzsConstants.RequestTimeout.TRY_ONCE, null, entry);
-    	} catch (DuplicateKeyException dup) {
-    		System.out.println("ERROR: A Worker with this key already exists, take another one!");
-    		//TODO: cleanup!
-    		return;
-		} catch (MzsCoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 		ArrayList<Computer> computerList = null;
 		
@@ -122,11 +129,6 @@ public class Tester {
 				
 				boolean defect;
 				
-				try {
-					computerList = capi.take(cRef, LabelCoordinator.newSelector("computer",1), RequestTimeout.INFINITE, null);
-				} catch (MzsCoreException e) {
-					 System.out.println("this should never happen :S");
-				}
 				if (!computerList.isEmpty()) {
 					Computer computer = computerList.get(0);
 					
@@ -146,12 +148,7 @@ public class Tester {
 						
 					Entry compEntry = new Entry(computer, LabelCoordinator.newCoordinationData("preTestedComputer"));
 					
-					try {
-						capi.write(compEntry, cRef, RequestTimeout.INFINITE, null);
-					} catch (MzsCoreException e) {
-						 System.out.println("this should never happen :S");
-		
-					}
+					// WRUITE
 				} else {
 					System.out.println("DEBUG: Computerlist is Empty, retrying ");
 				}
@@ -163,11 +160,7 @@ public class Tester {
 				
 				boolean defect;
 				
-				try {
-					computerList = capi.take(cRef, LabelCoordinator.newSelector("preTestedComputer",1), RequestTimeout.INFINITE, null);
-				} catch (MzsCoreException e) {
-					 System.out.println("this should never happen :S");
-				}
+				//READ
 
 				if (!computerList.isEmpty()) {
 					Computer computer = computerList.get(0);
@@ -195,11 +188,7 @@ public class Tester {
 						
 					Entry compEntry = new Entry(computer, LabelCoordinator.newCoordinationData("testedComputer"));
 					
-					try {
-						capi.write(compEntry, cRef, RequestTimeout.INFINITE, null);
-					} catch (MzsCoreException e) {
-						 System.out.println("this should never happen :S");
-					}
+					//WRITE
 				} else {
 					System.out.println("DEBUG: Computerlist is Empty, retrying ");
 				}
@@ -212,5 +201,30 @@ public class Tester {
 	// GETTER SETTER
 	public Integer getId(){
 		return id;
+	}
+
+	@Override
+	public String getUrl() throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void printMsg(String msg) throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void unregisterServer(String url, String tempURL)
+			throws RemoteException, ServerNotFoundException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public IRemote getRemote() throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

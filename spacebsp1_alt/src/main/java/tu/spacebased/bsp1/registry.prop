@@ -1,0 +1,4 @@
+# the host name of the registry server
+registry.host = localhost
+# the port where the registry service is listening, replace it with a real value such as 12500
+registry.port = 11630

@@ -104,6 +104,7 @@ public class Producer implements Runnable {
 			}
 
 			System.out.println("i inserted a"+component.toString());
+			// WRITE TO REGISTRY
 			
 		}
 		return;

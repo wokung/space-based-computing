@@ -1,11 +1,16 @@
 package tu.spacebased.bsp1.workers;
 
-public abstract class Worker {	
-	private static Integer id;
-	
-	public Worker() {
-		;
+import java.io.Serializable;
+import java.rmi.RemoteException;
+
+import tu.spacebased.bsp1.Server;
+
+public abstract class Worker extends java.rmi.server.UnicastRemoteObject implements Server, Serializable {	
+	protected Worker() throws RemoteException {
+		super();
+		// TODO Auto-generated constructor stub
 	}
+	private static Integer id;
 	
 	public static void main(String[] args){
 	}
