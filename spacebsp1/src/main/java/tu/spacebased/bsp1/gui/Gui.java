@@ -52,12 +52,14 @@ public class Gui implements ActionListener {
 	private static JList failedProducts;
     private static JTextField errorRate = new JTextField("0.1");
     private static JTextField workerName = new JTextField("20");
-    private static JTextField partsCount = new JTextField("123");
+    private static JTextField partsCount = new JTextField(" 0");
     private static JTextField failureNotification = new JTextField(30);
     
     private static ArrayList<Computer> selledComputerEntries = null;
     private static ArrayList<Computer> failedComputerEntries = null;
     
+    private static DefaultListModel listModel = new DefaultListModel();
+    private static DefaultListModel listModel1 = new DefaultListModel();
 	// For Container in space
 	static ContainerReference cRef = null;
 //	static ContainerReference shittyRef = null;
@@ -81,14 +83,16 @@ public class Gui implements ActionListener {
         // TODO: these are dummies - add actual 'ListModels' to the Lists 
         String worker[] = {"CPU","GPU","MAINBOARD", "RAM"};
         String parts[] = {"CPU", "GPU", "MAINBOARD", "RAM"};
-        String shipped[] = {"None"};
-        String failed[] = {"None"};
+        listModel.addElement("None");
+        listModel1.addElement("None");
+        //String shipped[] = {"None"};
+        //String failed[] = {"None"};
        
         workerList = new JList(worker);
     	partsTypeList = new JList(parts);
     	partsTypeList.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
-    	shippedProducts = new JList(shipped);
-    	failedProducts = new JList(failed);
+    	shippedProducts = new JList(listModel);
+    	failedProducts = new JList(listModel1);
         
         // Sizes
 //        createWorkerButton.setBounds(10,20,80,20);
@@ -133,8 +137,13 @@ public class Gui implements ActionListener {
         	public void actionPerformed( ActionEvent e ) { 
         		// modificate shippedProducts and showDetailsShipped
         		// UEBERGEBE DEM JTABLE DIE DATEN DES AUSGEWAEHLTN COMPUTERS
-        		if ((shippedProducts.getSelectedValue() != null) && (!shippedProducts.getSelectedValue().toString().equals("None"))) {
-        			new GuiTable(shippedProducts.getSelectedValue().toString(), selledComputerEntries.get(Integer.parseInt(shippedProducts.getSelectedValue().toString()) - 1));
+        		System.out.println("Shipped Product ausgewaehlt: " + shippedProducts.getSelectedValue() + " mit index " + shippedProducts.getSelectedIndex());
+        		if ((shippedProducts.getSelectedValue() != null)) {
+        			if (!shippedProducts.getSelectedValue().toString().equals("None")) {
+        				new GuiTable(shippedProducts.getSelectedValue().toString(), selledComputerEntries.get(shippedProducts.getSelectedIndex()));
+        			} else {
+        				failureNotification.setText("Cant Show Info for None");
+        			}
         		} else {
         			failureNotification.setText("NO COMPUTER SELECTED TO SHOW INFO");
         		}
@@ -306,11 +315,6 @@ public class Gui implements ActionListener {
         	
         	//This is quite ugly, but i don't care right now
 			try {
-/**
-				System.out.println("DEBUG: Trying to read Computer Entries from " + sellRef.toString() + " " );
-				compEntries = capi.read(sellRef, FifoCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
-				System.out.println("GOT ENTRIES: " + compEntries.toString() );
-*/
 				compEntries = capi.read(cRef, LabelCoordinator.newSelector("sell",MzsConstants.Selecting.COUNT_ALL), RequestTimeout.TRY_ONCE, null);
 
 			} catch (MzsCoreException e) {
@@ -320,33 +324,30 @@ public class Gui implements ActionListener {
 			
 			System.out.println("DEBUG: Trying to find computers for sellRef: ");
 			
-			if (!compEntries.isEmpty()) {
+			if ((!compEntries.isEmpty()) && ((compEntries.size() != listModel.size()) || (listModel.get(0).equals("None")))) {
 				
 				System.out.println("DEBUG: Found computers for sellRef, proceeding with iterator: " + compEntries.size());
 				
 				Iterator<Computer> it = compEntries.iterator();
-			
-			//	String temp[] = new String[compEntries.size()];
-				ArrayList<String> temp = new ArrayList<String>();
+				
+				listModel.clear();
 				
 				Integer z = 1;
 				while (it.hasNext()) {
 					Computer comp = (Computer) it.next();
-					//String shipped[] = {"None"};
-					// HERE GET COMPUTER ID ? list all computers as ids and show details when choosen ?
-					// DO SOMETHING WITH COMP ??
-					temp.add(z.toString());
+					listModel.addElement(z.toString());
 					z++;
 				}
-				if (temp != null) {
-					if (!temp.isEmpty()) {
-						shippedProducts = new JList((ListModel)temp);
-						shippedProducts.repaint();
+				if (listModel != null) {
+					if (!listModel.isEmpty()) {
+						//shippedProducts = new JList(listModel);
+						//shippedProducts.repaint();
+						//statisticsPanel1.repaint();
 						selledComputerEntries = compEntries;
 					}
 				}
 			} else {
-				System.out.println("DEBUG: ComputerEntries is empty, retrying ... ");
+				System.out.println("DEBUG: ComputerEntries not needing to update, retrying ... ");
 			}
 	
         	//This is quite ugly, but i don't care right now
@@ -357,14 +358,34 @@ public class Gui implements ActionListener {
 				 System.out.println("transaction timeout. retry." + e.toString());
                  ;
 			}
-			/**
-			if (compEntries2 != null) {
-				failedProducts = new JList((ListModel) compEntries2);
-				failedProducts.repaint();
+			System.out.println("DEBUG: Trying to find computers for shittyRef: ");
+			
+			if ((!compEntries.isEmpty()) && ((compEntries.size() != listModel1.size()) || (listModel1.get(0).equals("None")))) {
 				
-				failedComputerEntries = compEntries;
+				System.out.println("DEBUG: Found computers for sellRef, proceeding with iterator: " + compEntries.size());
+				
+				Iterator<Computer> it = compEntries.iterator();
+			
+				listModel1.clear();
+				
+				Integer z = 1;
+				while (it.hasNext()) {
+					Computer comp = (Computer) it.next();
+					listModel1.addElement(z.toString());
+					z++;
+				}
+				if (listModel1 != null) {
+					if (!listModel1.isEmpty()) {
+						failedProducts = new JList(listModel1);
+						failedProducts.repaint();
+						statisticsPanel2.repaint();
+						failedComputerEntries = compEntries;
+					}
+				}
+			} else {
+				System.out.println("DEBUG: ComputerEntries no need to update, retrying ... ");
 			}
-			*/
+			
 	        try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
