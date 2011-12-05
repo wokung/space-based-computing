@@ -329,11 +329,12 @@ public class Gui implements ActionListener {
 					temp.add(z.toString());
 					z++;
 				}
-				
-				if (!temp.isEmpty()) {
-					shippedProducts = new JList((ListModel)temp);
-					shippedProducts.repaint();
-					selledComputerEntries = compEntries;
+				if (temp != null) {
+					if (!temp.isEmpty()) {
+						shippedProducts = new JList((ListModel)temp);
+						shippedProducts.repaint();
+						selledComputerEntries = compEntries;
+					}
 				}
 			}
 	
