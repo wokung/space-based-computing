@@ -325,7 +325,7 @@ public class Gui implements ActionListener {
 				
 				Iterator<Computer> it = compEntries.iterator();
 				
-				String temp[] = {};
+				String temp[] = new String[compEntries.size()];
 				
 				int z = 0;
 				while (it.hasNext()) {
