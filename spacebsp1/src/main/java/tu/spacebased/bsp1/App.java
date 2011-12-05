@@ -86,7 +86,7 @@ public class App
 				uri,
 				MzsConstants.Container.UNBOUNDED,
 				null,
-				Arrays.asList(new KeyCoordinator(), new LabelCoordinator(), new FifoCoordinator(), new AnyCoordinator()),
+				Arrays.asList(new FifoCoordinator(), new AnyCoordinator()),
 				null); //transaction could be a real TransactionRefernce if
 						// we need commit-style
    		} catch (ContainerNameNotAvailableException e) {
@@ -116,7 +116,7 @@ public class App
 				uri,
 				MzsConstants.Container.UNBOUNDED,
 				null,
-				Arrays.asList(new KeyCoordinator(), new LabelCoordinator(), new FifoCoordinator()),
+				Arrays.asList(new FifoCoordinator(), new AnyCoordinator()),
 				null); //transaction could be a real TransactionRefernce if
 						// we need commit-style
    		} catch (ContainerNameNotAvailableException e) {
