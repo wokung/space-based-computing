@@ -179,15 +179,15 @@ public class Tester {
 					
 					if(computer.getCpu().isDefect() || computer.getMainboard().isDefect()) {
 						defect = true;
-					}else if(computer.getGpu() != null) {
+					}
+					if(computer.getGpu() != null) {
 						if (computer.getGpu().isDefect()) {
 							defect = true;
 						}
-					} else {
-						for (int i = 0; i < computer.getRam().size() || defect == false; i++) {
-							if (computer.getRam().get(i).isDefect()) {
-								defect = true;
-							}
+					}
+					for (int i = 0; i < computer.getRam().size() && defect == false; i++) {
+						if (computer.getRam().get(i).isDefect()) {
+							defect = true;
 						}
 					}
 						

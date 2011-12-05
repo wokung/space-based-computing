@@ -159,7 +159,6 @@ public class Gui implements ActionListener {
         			} else {
         				failureNotification.setText("Cant Show Info for None");
         			}
-        			
         		} else {
         			failureNotification.setText("NO COMPUTER SELECTED TO SHOW INFO");
         		}
