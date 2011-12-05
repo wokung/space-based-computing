@@ -21,8 +21,6 @@ import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreException;
 import org.mozartspaces.core.MzsConstants.RequestTimeout;
 
-import ch.qos.logback.core.db.dialect.MsSQLDialect;
-
 import tu.spacebased.bsp1.components.Computer;
 
 /**
