@@ -60,12 +60,7 @@ public class Gui implements ActionListener {
     
     private static DefaultListModel listModel = new DefaultListModel();
     private static DefaultListModel listModel1 = new DefaultListModel();
-	// For Container in space
-	static ContainerReference cRef = null;
-//	static ContainerReference shittyRef = null;
-//	static ContainerReference sellRef = null;
-	static Capi capi = null;
-    
+
     private static void createAndShowGUI() {
     	
         // Create and set up the window.
@@ -76,8 +71,6 @@ public class Gui implements ActionListener {
         JPanel mainPanel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         
-//        workerPanel.setBounds(10, 50, 200, 500);
-        
         partsCount.setEditable(false);
         
         // TODO: these are dummies - add actual 'ListModels' to the Lists 
@@ -85,18 +78,12 @@ public class Gui implements ActionListener {
         String parts[] = {"CPU", "GPU", "MAINBOARD", "RAM"};
         listModel.addElement("None");
         listModel1.addElement("None");
-        //String shipped[] = {"None"};
-        //String failed[] = {"None"};
        
         workerList = new JList(worker);
     	partsTypeList = new JList(parts);
     	partsTypeList.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
     	shippedProducts = new JList(listModel);
     	failedProducts = new JList(listModel1);
-        
-        // Sizes
-//        createWorkerButton.setBounds(10,20,80,20);
-//        workerList.setBounds(100,10,400,25);
         
         // Components of the worker panel
         workerPanel.add(workerList, FlowLayout.LEFT);
@@ -214,39 +201,6 @@ public class Gui implements ActionListener {
 
     public static void main(String[] args) {
     	
-    	MzsCore core = DefaultMzsCore.newInstance();
-        capi = new Capi(core);
-    	
-    	URI uri = null;
- 		try {
- 			uri = new URI("xvsm://localhost:9877");
- 		} catch (URISyntaxException e1) {
- 			// TODO Auto-generated catch block
- 			e1.printStackTrace();
- 		}
-        String containerName = "store";
-        
-        try {
-			cRef = capi.lookupContainer(containerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
-		} catch (MzsCoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-        
-//        try {
-//			shittyRef = capi.lookupContainer(shittyContainerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
-//		} catch (MzsCoreException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
-//        
-//        try {
-//			sellRef = capi.lookupContainer(sellContainerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
-//		} catch (MzsCoreException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
-        
         //Schedule a job for the event-dispatching thread:
         //creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -271,35 +225,12 @@ public class Gui implements ActionListener {
     		
 	        	switch(part) {
 	        	case (0):
-	        		try {
-	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("CPU", MzsConstants.Selecting.COUNT_MAX), 200, null);
-	    			} catch (MzsCoreException e) {
-	    				 System.out.println("transaction timeout. retry.");
-	    			}
 	        	break;
 	        	case (1):
-	        		try {
-	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("GPU", MzsConstants.Selecting.COUNT_ALL), 200, null);
-	    			} catch (MzsCoreException e) {
-	    				 System.out.println("transaction timeout. retry.");
-	                     continue;
-	    			}
 	        	break;
 	        	case (2):
-	        		try {
-	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("MAINBOARD", MzsConstants.Selecting.COUNT_ALL), 200, null);
-	    			} catch (MzsCoreException e) {
-	    				 System.out.println("transaction timeout. retry.");
-	                     continue;
-	    			}
 	        	break;
 	        	case (3):
-	        		try {
-	    				readEntries = capi.read(cRef, LabelCoordinator.newSelector("RAM", MzsConstants.Selecting.COUNT_ALL), 200, null);
-	    			} catch (MzsCoreException e) {
-	    				 System.out.println("transaction timeout. retry.");
-	                     continue;
-	    			}
 	        	}
 	        	Integer count = readEntries.size();
 	        		        	
@@ -314,15 +245,6 @@ public class Gui implements ActionListener {
         	ArrayList<Computer>compEntries = null;
         	ArrayList<Computer>compEntries2 = null;
         	
-        	//This is quite ugly, but i don't care right now
-			try {
-				compEntries = capi.read(cRef, LabelCoordinator.newSelector("sell",MzsConstants.Selecting.COUNT_ALL), RequestTimeout.TRY_ONCE, null);
-
-			} catch (MzsCoreException e) {
-				 System.out.println("transaction timeout. retry." + e.toString());
-                 
-			}
-			
 			System.out.println("DEBUG: Trying to find computers for sellRef: ");
 			
 			if ((!compEntries.isEmpty()) && ((compEntries.size() != listModel.size()) || (listModel.get(0).equals("None")))) {
@@ -352,13 +274,6 @@ public class Gui implements ActionListener {
 			}
 	
         	//This is quite ugly, but i don't care right now
-			try {
-				compEntries = capi.read(cRef, LabelCoordinator.newSelector("shitty",MzsConstants.Selecting.COUNT_ALL), RequestTimeout.TRY_ONCE, null);
-
-			} catch (MzsCoreException e) {
-				 System.out.println("transaction timeout. retry." + e.toString());
-                 
-			}
 			System.out.println("DEBUG: Trying to find computers for shittyRef: ");
 			
 			if ((!compEntries.isEmpty()) && ((compEntries.size() != listModel1.size()) || (listModel1.get(0).equals("None")))) {
@@ -408,25 +323,6 @@ public class Gui implements ActionListener {
     public static void createProducer(int quantity,double errorRate,tu.spacebased.bsp1.workers.Producer.Components components) {
     	
     	String makerID;
-    	/**
-		ArrayList<String>readId = null;
-		
-		try {
-			readId = capi.take(cRef, KeyCoordinator.newSelector("uniqueWorkerId"), RequestTimeout.INFINITE, null);
-		} catch (MzsCoreException e) {
-			 System.out.println("this should never happen :S");
-		}
-		
-		Entry id = new Entry(readId.get(0)+1, KeyCoordinator.newCoordinationData("uniqueId"));
-		
-		try {
-			capi.write(cRef, RequestTimeout.INFINITE, null, id);
-		} catch (MzsCoreException e) {
-			 System.out.println("this should never happen :S");
-		}
-		
-		makerID = readId.get(0);
-		*/
     	UUID uid= UUID.randomUUID();
     	makerID = uid.toString();
 		Producer prod = new Producer(quantity, makerID, errorRate, components);

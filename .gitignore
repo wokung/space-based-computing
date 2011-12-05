@@ -7,3 +7,12 @@ spacebsp1/.settings/
 
 # ignore binaries
 spacebsp1/target/
+# ignore  eclipse files
+.metadata
+spacebsp1_alt/.project
+spacebsp1_alt/.classpath
+spacebsp1_alt/.settings/
+
+
+# ignore binaries
+spacebsp1_alt/target/
