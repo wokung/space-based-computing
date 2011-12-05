@@ -61,13 +61,6 @@ public class Producer implements Runnable {
 	private Thread thread;
 	private Random random = null;
 	
-	// For Container in space
-	private Capi capi;
-	private ContainerReference cRef = null;
-    private String containerName = "store";
-	TransactionReference transaction = null;
-	URI uri = null;
-	
 	/**
 	 * Constructor of Producer
 	 * Producer needs the number of pieces to produce. Its creator must also be saved.
@@ -88,31 +81,6 @@ public class Producer implements Runnable {
 		synchronized (this) {
 			thread = new Thread(this);
 			thread.start();
-		}
-		
-		MzsCore core = DefaultMzsCore.newInstance();
-	    capi = new Capi(core);
-	    
-		try {
-			uri = new URI("xvsm://localhost:9877");
-		} catch (URISyntaxException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		try {
-			transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
-		} catch (MzsCoreException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		
-		try {
-			cRef = capi.lookupContainer(containerName, uri, MzsConstants.RequestTimeout.INFINITE, transaction);
-			capi.commitTransaction(transaction);
-		} catch (MzsCoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
 		}
 	}
 	
@@ -153,24 +121,7 @@ public class Producer implements Runnable {
 					break;
 			}
 
-			Entry entry = new Entry(newComponent, LabelCoordinator.newCoordinationData(component.toString()));
-
-			
 			System.out.println("i inserted a"+component.toString());
-			
-			try {
-				transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
-			} catch (MzsCoreException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-			
-			try {
-				capi.write(cRef, MzsConstants.RequestTimeout.TRY_ONCE, transaction, entry);
-				capi.commitTransaction(transaction);
-			} catch (MzsCoreException e) {
-				 System.out.println("this should never happen :S");
-			}
 			
 		}
 		return;
@@ -178,34 +129,7 @@ public class Producer implements Runnable {
 	
 	// TODO get last id from space and increment
 	private int uniqueID() {
-		
-		ArrayList<Integer>readEntries = null;
-		
-		try {
-			readEntries = capi.take(cRef, KeyCoordinator.newSelector("uniqueId"), 1000, null);
-		} catch (MzsCoreException e) {
-			 System.out.println("this should never happen :S");
-		}
-		
-		Integer id = readEntries.get(0);
-		
-		Entry postId = new Entry(id+1, KeyCoordinator.newCoordinationData("uniqueId"));
-		
-		try {
-			transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
-		} catch (MzsCoreException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		
-		try {
-			capi.write(cRef, RequestTimeout.INFINITE, transaction, postId);
-			capi.commitTransaction(transaction);
-		} catch (MzsCoreException e) {
-			 System.out.println("this should never happen :S");
-		}
-		
-		return (id);
+		return (0);
 	}
 	
 	/**
