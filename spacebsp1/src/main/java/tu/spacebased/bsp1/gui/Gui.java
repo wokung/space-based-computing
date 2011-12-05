@@ -154,7 +154,7 @@ public class Gui implements ActionListener {
         	public void actionPerformed( ActionEvent e ) { 
         		// modificate failedProducts and showDetailsFailed     
         		if ((failedProducts.getSelectedValue() != null) && (!failedProducts.getSelectedValue().toString().equals("None"))) {
-        			//new GuiTable(failedProducts.getSelectedValue().toString(), failedComputerEntries.get(Integer.parseInt(failedComputerEntries.getSelectedValue().toString()) - 1));
+        			new GuiTable(failedProducts.getSelectedValue().toString(), failedComputerEntries.get(failedProducts.getSelectedIndex()));
         			
         		} else {
         			failureNotification.setText("NO COMPUTER SELECTED TO SHOW INFO");
@@ -376,9 +376,9 @@ public class Gui implements ActionListener {
 				}
 				if (listModel1 != null) {
 					if (!listModel1.isEmpty()) {
-						failedProducts = new JList(listModel1);
-						failedProducts.repaint();
-						statisticsPanel2.repaint();
+						//failedProducts = new JList(listModel1);
+						//failedProducts.repaint();
+						//statisticsPanel2.repaint();
 						failedComputerEntries = compEntries;
 					}
 				}
