@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
@@ -326,7 +327,7 @@ public class Gui implements ActionListener {
 				Iterator<Computer> it = compEntries.iterator();
 			
 			//	String temp[] = new String[compEntries.size()];
-				ArrayList<String> temp = null;
+				ArrayList<String> temp = new ArrayList<String>();
 				
 				Integer z = 1;
 				while (it.hasNext()) {
