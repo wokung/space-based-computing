@@ -19,6 +19,7 @@ import org.mozartspaces.core.Entry;
 import org.mozartspaces.core.MzsConstants;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreException;
+import org.mozartspaces.core.TransactionReference;
 import org.mozartspaces.core.MzsConstants.RequestTimeout;
 
 import tu.spacebased.bsp1.components.Computer;
@@ -43,7 +44,8 @@ public class Logistician extends Worker {
     private static String containerName = "store";
     private static String shittyContainerName = "shitty";
     private static String sellContainerName = "sell";
-	
+    private static TransactionReference transaction = null;
+    
 	public static void main(String [] args)
 	{
 		Runtime.getRuntime().addShutdownHook(new Thread()
@@ -145,29 +147,38 @@ public class Logistician extends Worker {
 			} catch (MzsCoreException e) {
 				 System.out.println("this should never happen :S");
 			}
-			Computer computer = computerList.get(0);
-			System.out.println("DEBUG: GOT COMPUTERLIST WITH COMPUTER: " + computer.getMakerID());
-			// keep track of Logistician that processed it;
-			computer.setLogisticianID(id);
 			
-			if (computer.isDefect()) {
-				Entry compEntry = new Entry(computer);
+			if (!computerList.isEmpty()) {
+				Computer computer = computerList.get(0);
+				System.out.println("DEBUG: GOT COMPUTERLIST WITH COMPUTER CREATOR: " + computer.getMakerID() + " and Tester " + computer.getTesterID());
+				// keep track of Logistician that processed it;
+				computer.setLogisticianID(id);
 				
-				try {
-					capi.write(compEntry, shittyRef, RequestTimeout.INFINITE, null);
-				} catch (MzsCoreException e) {
-					 System.out.println("this should never happen :S");
+				if (computer.isDefect()) {
+					Entry compEntry = new Entry(computer);
+					
+					try {
+						transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
+						capi.write(compEntry, shittyRef, RequestTimeout.INFINITE, transaction);
+						capi.commitTransaction(transaction);
+					} catch (MzsCoreException e) {
+						 System.out.println("this should never happen :S");
+					}
+					System.out.println("DEBUG: WROTE DEFECT TRUE TO COMPUTER NR: " + computer.getMakerID());
+				} else {
+					Entry compEntry = new Entry(computer);
+					
+					try {
+						transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
+						capi.write(compEntry, sellRef, RequestTimeout.INFINITE, transaction);
+						capi.commitTransaction(transaction);
+					} catch (MzsCoreException e) {
+						 System.out.println("this should never happen :S");
+					}
+					System.out.println("DEBUG: WROTE DEFECT FALSE TO COMPUTER NR: " + computer.getMakerID());
 				}
-				System.out.println("DEBUG: WROTE DEFECT TRUE TO COMPUTER NR: " + computer.getMakerID());
 			} else {
-				Entry compEntry = new Entry(computer);
-				
-				try {
-					capi.write(compEntry, sellRef, RequestTimeout.INFINITE, null);
-				} catch (MzsCoreException e) {
-					 System.out.println("this should never happen :S");
-				}
-				System.out.println("DEBUG: WROTE DEFECT FALSE TO COMPUTER NR: " + computer.getMakerID());
+				System.out.println("DEBUG: Computerlist is Empty, retrying ");
 			}
 		}
 	}

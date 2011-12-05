@@ -15,8 +15,11 @@ import tu.spacebased.bsp1.exceptions.BuildComputerException;
  */
 public class Computer implements Serializable {
 
-	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6097767551744537966L;
 	private final int makerId;
 	private int testerId;
 	private int logisticianId;

@@ -131,29 +131,33 @@ public class Tester {
 				} catch (MzsCoreException e) {
 					 System.out.println("this should never happen :S");
 				}
-				Computer computer = computerList.get(0);
-				
-				// keep track of Tester that processed it;
-				computer.setTesterId(id);
-				
-				defect = false;
-				
-				// Checks for mandatory components or throw exceptions
-				if ((computer.getMainboard() == null) || (computer.getCpu() == null) || (computer.getRam().isEmpty())) {
-					defect = true;
-				} else if ((computer.getRam().size() != 1) || (computer.getRam().size() != 2) || (computer.getRam().size() != 4)) {
-					defect = true;
-				}
+				if (!computerList.isEmpty()) {
+					Computer computer = computerList.get(0);
 					
-				computer.setDefect(defect);
+					// keep track of Tester that processed it;
+					computer.setTesterId(id);
 					
-				Entry compEntry = new Entry(computer, LabelCoordinator.newCoordinationData("preTestedComputer"));
-				
-				try {
-					capi.write(compEntry, cRef, RequestTimeout.INFINITE, null);
-				} catch (MzsCoreException e) {
-					 System.out.println("this should never happen :S");
-	
+					defect = false;
+					
+					// Checks for mandatory components or throw exceptions
+					if ((computer.getMainboard() == null) || (computer.getCpu() == null) || (computer.getRam().isEmpty())) {
+						defect = true;
+					} else if ((computer.getRam().size() != 1) || (computer.getRam().size() != 2) || (computer.getRam().size() != 4)) {
+						defect = true;
+					}
+						
+					computer.setDefect(defect);
+						
+					Entry compEntry = new Entry(computer, LabelCoordinator.newCoordinationData("preTestedComputer"));
+					
+					try {
+						capi.write(compEntry, cRef, RequestTimeout.INFINITE, null);
+					} catch (MzsCoreException e) {
+						 System.out.println("this should never happen :S");
+		
+					}
+				} else {
+					System.out.println("DEBUG: Computerlist is Empty, retrying ");
 				}
 			}	
 			
@@ -168,36 +172,41 @@ public class Tester {
 				} catch (MzsCoreException e) {
 					 System.out.println("this should never happen :S");
 				}
-				Computer computer = computerList.get(0);
-				
-				// keep track of Tester that processed it;
-				computer.setTesterId(id);
-				
-				defect = false;
-				
-				if(computer.getCpu().isDefect() || computer.getMainboard().isDefect()) {
-					defect = true;
-				}else if(computer.getGpu() != null) {
-					if (computer.getGpu().isDefect()) {
+
+				if (!computerList.isEmpty()) {
+					Computer computer = computerList.get(0);
+					
+					// keep track of Tester that processed it;
+					computer.setTesterId(id);
+					
+					defect = false;
+					
+					if(computer.getCpu().isDefect() || computer.getMainboard().isDefect()) {
 						defect = true;
-					}
-				} else {
-					for (int i = 0; i < computer.getRam().size() || defect == true; i++) {
-						if (computer.getRam().get(i).isDefect()) {
+					}else if(computer.getGpu() != null) {
+						if (computer.getGpu().isDefect()) {
 							defect = true;
 						}
+					} else {
+						for (int i = 0; i < computer.getRam().size() || defect == true; i++) {
+							if (computer.getRam().get(i).isDefect()) {
+								defect = true;
+							}
+						}
 					}
-				}
+						
+					computer.setDefect(defect);
+						
+					Entry compEntry = new Entry(computer, LabelCoordinator.newCoordinationData("testedComputer"));
 					
-				computer.setDefect(defect);
-					
-				Entry compEntry = new Entry(computer, LabelCoordinator.newCoordinationData("testedComputer"));
-				
-				try {
-					capi.write(compEntry, cRef, RequestTimeout.INFINITE, null);
-				} catch (MzsCoreException e) {
-					 System.out.println("this should never happen :S");
-	
+					try {
+						capi.write(compEntry, cRef, RequestTimeout.INFINITE, null);
+					} catch (MzsCoreException e) {
+						 System.out.println("this should never happen :S");
+		
+					}
+				} else {
+					System.out.println("DEBUG: Computerlist is Empty, retrying ");
 				}
 			}
 		} else {

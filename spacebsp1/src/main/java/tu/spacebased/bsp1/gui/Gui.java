@@ -247,6 +247,7 @@ public class Gui implements ActionListener {
  
         // TODO: I think update and revalidation should move into an own thread?
         while(true) {
+        	//System.out.println("TRYING WHILE");
         	
         	//Parts list
         	
@@ -296,7 +297,7 @@ public class Gui implements ActionListener {
     		} catch (NullPointerException n) {
     			continue;
     		}
-        	
+    		System.out.println("TRYING TO GET COMPUTERS");
         	//Computer lists
 
         	ArrayList<Computer>compEntries = null;
@@ -304,7 +305,9 @@ public class Gui implements ActionListener {
         	
         	//This is quite ugly, but i don't care right now
 			try {
-				compEntries = capi.read(sellRef, AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
+				System.out.println("DEBUG: Trying to read Computer Entries from " + sellRef.toString() + " " );
+				compEntries = capi.read(sellRef, FifoCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
+				System.out.println("GOT ENTRIES: " + compEntries.toString() );
 			} catch (MzsCoreException e) {
 				 System.out.println("transaction timeout. retry." + e.toString());
                  continue;
@@ -312,7 +315,7 @@ public class Gui implements ActionListener {
 			
 			System.out.println("DEBUG: Trying to find computers for sellRef: ");
 			
-			if (compEntries != null) {
+			if (!compEntries.isEmpty()) {
 				
 				System.out.println("DEBUG: Found computers for sellRef, proceeding with iterator: " + compEntries.size());
 				
@@ -335,6 +338,8 @@ public class Gui implements ActionListener {
 					shippedProducts.repaint();
 					selledComputerEntries = compEntries;
 				}
+			} else {
+				System.out.println("DEBUG: ComputerEntries is empty, retrying ... ");
 			}
 	
         	//This is quite ugly, but i don't care right now
