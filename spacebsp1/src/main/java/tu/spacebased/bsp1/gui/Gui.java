@@ -10,15 +10,13 @@ import java.awt.event.ActionListener;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Iterator;
 import java.util.UUID;
 
 import org.mozartspaces.capi3.*;
 import org.mozartspaces.core.Capi;
-import org.mozartspaces.core.CapiUtil;
 import org.mozartspaces.core.ContainerReference;
 import org.mozartspaces.core.DefaultMzsCore;
-import org.mozartspaces.core.Entry;
 import org.mozartspaces.core.MzsConstants;
 import org.mozartspaces.core.MzsConstants.RequestTimeout;
 import org.mozartspaces.core.MzsCore;
@@ -128,6 +126,21 @@ public class Gui implements ActionListener {
 	    		  }
 	    	  } 
     	} );
+        
+        showDetailsShipped.addActionListener( new ActionListener() { 
+        	public void actionPerformed( ActionEvent e ) { 
+        		// modificate shippedProducts and showDetailsShipped
+        		
+        	}
+    	} );
+        
+        showDetailsFailed.addActionListener( new ActionListener() { 
+        	public void actionPerformed( ActionEvent e ) { 
+        		// modificate failedProducts and showDetailsFailed     
+        		
+        	}
+    	} );
+
         
         // frame.getContentPane().add(createWorkerButton);
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -274,6 +287,7 @@ public class Gui implements ActionListener {
     		}
         	
         	//Computer lists
+
         	ArrayList<Computer>compEntries = null;
         	ArrayList<Computer>compEntries2 = null;
         	
@@ -284,11 +298,17 @@ public class Gui implements ActionListener {
 				 System.out.println("transaction timeout. retry.");
                  continue;
 			}
+
 			if (!compEntries.isEmpty()) {
-				shippedProducts = new JList((ListModel) compEntries);
-				shippedProducts.repaint();
+				Iterator it = compEntries.iterator();
+			
+				while (it.hasNext()) {
+					Computer comp = (Computer) it.next();
+					// HERE GET COMPUTER ID ? list all computers as ids and show details when choosen ?
+					//int[] temp = { comp.getMakerID()};
+				}
 			}
-      	
+	
         	//This is quite ugly, but i don't care right now
 			try {
 				compEntries2 = capi.read(shittyRef, AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
@@ -297,11 +317,11 @@ public class Gui implements ActionListener {
                  continue;
 			}
 			
-			if (!compEntries.isEmpty()) {
+			if (!compEntries2.isEmpty()) {
 				failedProducts = new JList((ListModel) compEntries2);
 				failedProducts.repaint();
 			}
-	        
+
 	        try {
 				Thread.sleep(200);
 			} catch (InterruptedException e) {
