@@ -307,7 +307,7 @@ public class Gui implements ActionListener {
 				compEntries = capi.read(cRef, LabelCoordinator.newSelector("sell",MzsConstants.Selecting.COUNT_ALL), RequestTimeout.TRY_ONCE, null);
 			} catch (MzsCoreException e) {
 				 System.out.println("transaction timeout. retry." + e.toString());
-                 continue;
+                 ;
 			}
 			
 			System.out.println("DEBUG: Trying to find computers for sellRef: ");
@@ -318,20 +318,20 @@ public class Gui implements ActionListener {
 				
 				Iterator<Computer> it = compEntries.iterator();
 				
-				String temp[] = {};
+				ArrayList<String> temp = null;
 				
-				int z = 0;
+				Integer z = 1;
 				while (it.hasNext()) {
 					Computer comp = (Computer) it.next();
 					//String shipped[] = {"None"};
 					// HERE GET COMPUTER ID ? list all computers as ids and show details when choosen ?
 					// DO SOMETHING WITH COMP ??
-					temp[z] = String.valueOf(z + 1);
+					temp.add(z.toString());
 					z++;
 				}
 				
-				if (temp.length > 0) {
-					shippedProducts = new JList(temp);
+				if (!temp.isEmpty()) {
+					shippedProducts = new JList((ListModel)temp);
 					shippedProducts.repaint();
 					selledComputerEntries = compEntries;
 				}
@@ -343,7 +343,7 @@ public class Gui implements ActionListener {
 
 			} catch (MzsCoreException e) {
 				 System.out.println("transaction timeout. retry." + e.toString());
-                 continue;
+                 ;
 			}
 			/**
 			if (compEntries2 != null) {
