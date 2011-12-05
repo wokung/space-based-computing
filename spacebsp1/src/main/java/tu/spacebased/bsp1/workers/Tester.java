@@ -138,7 +138,7 @@ public class Tester {
 					// Checks for mandatory components or throw exceptions
 					if ((computer.getMainboard() == null) || (computer.getCpu() == null) || (computer.getRam().isEmpty())) {
 						defect = true;
-					} else if ((computer.getRam().size() != 1) || (computer.getRam().size() != 2) || (computer.getRam().size() != 4)) {
+					} else if ((computer.getRam().size() != 1) && (computer.getRam().size() != 2) && (computer.getRam().size() != 4)) {
 						defect = true;
 					}
 						

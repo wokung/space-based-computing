@@ -103,8 +103,8 @@ public class GuiTable implements ActionListener {
           frame.setTitle("JTable Beispiel");
           frame.setVisible(true);
      }
-
+     
      public void actionPerformed(ActionEvent arg0) {
-          System.exit(0);
+    	 frame.dispose();
      }
 }
