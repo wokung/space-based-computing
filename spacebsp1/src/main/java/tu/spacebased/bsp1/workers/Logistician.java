@@ -39,13 +39,17 @@ public class Logistician extends Worker {
 	// For Container in space
 	private static Capi capi;
 	private static ContainerReference cRef = null;
-	private static ContainerReference shittyRef = null;
-	private static ContainerReference sellRef = null;
+//	private static ContainerReference shittyRef = null;
+//	private static ContainerReference sellRef = null;
     private static String containerName = "store";
+
     private static String shittyContainerName = "shitty";
     private static String sellContainerName = "sell";
     private static TransactionReference transaction = null;
     
+//    private static String shittyContainerName = "shitty";
+//    private static String sellContainerName = "sell";
+	
 	public static void main(String [] args)
 	{
 		Runtime.getRuntime().addShutdownHook(new Thread()
@@ -100,27 +104,27 @@ public class Logistician extends Worker {
 			e1.printStackTrace();
 		}
 		
-		try {
-			shittyRef = capi.lookupContainer(
-					shittyContainerName,
-					uri,
-					MzsConstants.RequestTimeout.INFINITE,
-					null);
-		} catch (MzsCoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		try {
-			sellRef = capi.lookupContainer(
-					sellContainerName,
-					uri,
-					MzsConstants.RequestTimeout.INFINITE,
-					null);
-		} catch (MzsCoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+//		try {
+//			shittyRef = capi.lookupContainer(
+//					shittyContainerName,
+//					uri,
+//					MzsConstants.RequestTimeout.INFINITE,
+//					null);
+//		} catch (MzsCoreException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//		
+//		try {
+//			sellRef = capi.lookupContainer(
+//					sellContainerName,
+//					uri,
+//					MzsConstants.RequestTimeout.INFINITE,
+//					null);
+//		} catch (MzsCoreException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
 		
 		// check if arguments are correct
 		// try to insert worker id into space, exit if not unique
@@ -150,28 +154,44 @@ public class Logistician extends Worker {
 			
 			if (!computerList.isEmpty()) {
 				Computer computer = computerList.get(0);
+
 				System.out.println("DEBUG: GOT COMPUTERLIST WITH COMPUTER CREATOR: " + computer.getMakerID() + " and Tester " + computer.getTesterID());
+
 				// keep track of Logistician that processed it;
 				computer.setLogisticianID(id);
 				
 				if (computer.isDefect()) {
+/**
 					Entry compEntry = new Entry(computer);
 					
 					try {
 						transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
 						capi.write(compEntry, shittyRef, RequestTimeout.INFINITE, transaction);
 						capi.commitTransaction(transaction);
+*/
+					Entry compEntry = new Entry(computer, LabelCoordinator.newCoordinationData("shitty"));
+					
+					try {
+						capi.write(compEntry, cRef, RequestTimeout.INFINITE, null);
+
 					} catch (MzsCoreException e) {
 						 System.out.println("this should never happen :S");
 					}
 					System.out.println("DEBUG: WROTE DEFECT TRUE TO COMPUTER NR: " + computer.getMakerID());
 				} else {
+/**
 					Entry compEntry = new Entry(computer);
 					
 					try {
 						transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
 						capi.write(compEntry, sellRef, RequestTimeout.INFINITE, transaction);
 						capi.commitTransaction(transaction);
+*/
+					Entry compEntry = new Entry(computer, LabelCoordinator.newCoordinationData("sell"));
+					
+					try {
+						capi.write(compEntry, cRef, RequestTimeout.INFINITE, null);
+
 					} catch (MzsCoreException e) {
 						 System.out.println("this should never happen :S");
 					}
@@ -179,6 +199,7 @@ public class Logistician extends Worker {
 				}
 			} else {
 				System.out.println("DEBUG: Computerlist is Empty, retrying ");
+
 			}
 		}
 	}

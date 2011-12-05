@@ -59,8 +59,8 @@ public class Gui implements ActionListener {
     
 	// For Container in space
 	static ContainerReference cRef = null;
-	static ContainerReference shittyRef = null;
-	static ContainerReference sellRef = null;
+//	static ContainerReference shittyRef = null;
+//	static ContainerReference sellRef = null;
 	static Capi capi = null;
     
     private static void createAndShowGUI() {
@@ -222,19 +222,19 @@ public class Gui implements ActionListener {
 			e1.printStackTrace();
 		}
         
-        try {
-			shittyRef = capi.lookupContainer(shittyContainerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
-		} catch (MzsCoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-        
-        try {
-			sellRef = capi.lookupContainer(sellContainerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
-		} catch (MzsCoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+//        try {
+//			shittyRef = capi.lookupContainer(shittyContainerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
+//		} catch (MzsCoreException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//        
+//        try {
+//			sellRef = capi.lookupContainer(sellContainerName, uri, MzsConstants.RequestTimeout.INFINITE, null);
+//		} catch (MzsCoreException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
         
         //Schedule a job for the event-dispatching thread:
         //creating and showing this application's GUI.
@@ -305,9 +305,13 @@ public class Gui implements ActionListener {
         	
         	//This is quite ugly, but i don't care right now
 			try {
+/**
 				System.out.println("DEBUG: Trying to read Computer Entries from " + sellRef.toString() + " " );
 				compEntries = capi.read(sellRef, FifoCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
 				System.out.println("GOT ENTRIES: " + compEntries.toString() );
+*/
+				compEntries = capi.read(cRef, LabelCoordinator.newSelector("sell",MzsConstants.Selecting.COUNT_ALL), RequestTimeout.TRY_ONCE, null);
+
 			} catch (MzsCoreException e) {
 				 System.out.println("transaction timeout. retry." + e.toString());
                  continue;
@@ -344,7 +348,8 @@ public class Gui implements ActionListener {
 	
         	//This is quite ugly, but i don't care right now
 			try {
-				compEntries2 = capi.read(shittyRef, AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
+				compEntries = capi.read(cRef, LabelCoordinator.newSelector("shitty",MzsConstants.Selecting.COUNT_ALL), RequestTimeout.TRY_ONCE, null);
+
 			} catch (MzsCoreException e) {
 				 System.out.println("transaction timeout. retry." + e.toString());
                  continue;
@@ -358,7 +363,7 @@ public class Gui implements ActionListener {
 			}
 			*/
 	        try {
-				Thread.sleep(200);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
