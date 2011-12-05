@@ -1,20 +1,6 @@
 package tu.spacebased.bsp1.workers;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-
-import org.mozartspaces.capi3.DuplicateKeyException;
-import org.mozartspaces.capi3.KeyCoordinator;
-import org.mozartspaces.capi3.LabelCoordinator;
-import org.mozartspaces.core.Capi;
-import org.mozartspaces.core.ContainerReference;
-import org.mozartspaces.core.DefaultMzsCore;
-import org.mozartspaces.core.Entry;
-import org.mozartspaces.core.MzsConstants;
-import org.mozartspaces.core.MzsCore;
-import org.mozartspaces.core.MzsCoreException;
-import org.mozartspaces.core.MzsConstants.RequestTimeout;
 
 import tu.spacebased.bsp1.components.Computer;
 
@@ -34,25 +20,9 @@ import tu.spacebased.bsp1.components.Computer;
 public class Tester {
 	private static Integer id;
 	// For Container in space
-	private static Capi capi;
-	private static ContainerReference cRef = null;
-    private static String containerName = "store";
     
 	public static void main(String[] args)
 	{
-		Runtime.getRuntime().addShutdownHook(new Thread()
-        {
-            @Override
-            public void run()
-            {
-            	try {
-        			capi.take(cRef, KeyCoordinator.newSelector(id.toString()), RequestTimeout.INFINITE, null);
-        		} catch (MzsCoreException e) {
-        			 System.out.println("this should never happen :S");
-        		}
-            }
-        });
-		
 		Tester tester = new Tester();
 		
 		// do some command checking
@@ -73,46 +43,11 @@ public class Tester {
 			System.exit(1);
 		}
 		
-		// get the last Tester from space and check if the id is already initialized
-		
-		MzsCore core = DefaultMzsCore.newInstance();
-	    capi = new Capi(core);
-	    
-	    URI uri = null;
-		try {
-			uri = new URI("xvsm://localhost:9877");
-		} catch (URISyntaxException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		try {
-			cRef = capi.lookupContainer(
-					containerName,
-					uri,
-					MzsConstants.RequestTimeout.INFINITE,
-					null);
-		} catch (MzsCoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		//TODO: get unique id
 		
 		// check if arguments are correct
 		// try to insert worker id into space, exit if not unique
 		id = firstArg;
-		
-		Entry entry = new Entry(tester.getClass(), KeyCoordinator.newCoordinationData(id.toString()));
-        
-    	try {
-			capi.write(cRef, MzsConstants.RequestTimeout.TRY_ONCE, null, entry);
-    	} catch (DuplicateKeyException dup) {
-    		System.out.println("ERROR: A Worker with this key already exists, take another one!");
-    		//TODO: cleanup!
-    		return;
-		} catch (MzsCoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 		ArrayList<Computer> computerList = null;
 		
@@ -120,13 +55,10 @@ public class Tester {
 		if (secondArg == 0){
 			for (;;) {
 				
+				//TODO: get computer
+				
 				boolean defect;
 				
-				try {
-					computerList = capi.take(cRef, LabelCoordinator.newSelector("computer",1), RequestTimeout.INFINITE, null);
-				} catch (MzsCoreException e) {
-					 System.out.println("this should never happen :S");
-				}
 				if (!computerList.isEmpty()) {
 					Computer computer = computerList.get(0);
 					
@@ -144,14 +76,8 @@ public class Tester {
 						
 					computer.setDefect(defect);
 						
-					Entry compEntry = new Entry(computer, LabelCoordinator.newCoordinationData("preTestedComputer"));
+					//TODO: put computer as pretested
 					
-					try {
-						capi.write(compEntry, cRef, RequestTimeout.INFINITE, null);
-					} catch (MzsCoreException e) {
-						 System.out.println("this should never happen :S");
-		
-					}
 				} else {
 					System.out.println("DEBUG: Computerlist is Empty, retrying ");
 				}
@@ -163,11 +89,7 @@ public class Tester {
 				
 				boolean defect;
 				
-				try {
-					computerList = capi.take(cRef, LabelCoordinator.newSelector("preTestedComputer",1), RequestTimeout.INFINITE, null);
-				} catch (MzsCoreException e) {
-					 System.out.println("this should never happen :S");
-				}
+				//TODO: get pretested Computer
 
 				if (!computerList.isEmpty()) {
 					Computer computer = computerList.get(0);
@@ -193,13 +115,7 @@ public class Tester {
 						
 					computer.setDefect(defect);
 						
-					Entry compEntry = new Entry(computer, LabelCoordinator.newCoordinationData("testedComputer"));
-					
-					try {
-						capi.write(compEntry, cRef, RequestTimeout.INFINITE, null);
-					} catch (MzsCoreException e) {
-						 System.out.println("this should never happen :S");
-					}
+					//TODO put tested computer
 				} else {
 					System.out.println("DEBUG: Computerlist is Empty, retrying ");
 				}
