@@ -320,7 +320,7 @@ public class Gui implements ActionListener {
 
 			} catch (MzsCoreException e) {
 				 System.out.println("transaction timeout. retry." + e.toString());
-                 ;
+                 
 			}
 			
 			System.out.println("DEBUG: Trying to find computers for sellRef: ");
@@ -357,7 +357,7 @@ public class Gui implements ActionListener {
 
 			} catch (MzsCoreException e) {
 				 System.out.println("transaction timeout. retry." + e.toString());
-                 ;
+                 
 			}
 			System.out.println("DEBUG: Trying to find computers for shittyRef: ");
 			

@@ -189,7 +189,7 @@ public class Tester {
 						if (computer.getRam().get(i).isDefect()) {
 							defect = true;
 						}
-					}
+					} 
 						
 					computer.setDefect(defect);
 						
@@ -199,7 +199,6 @@ public class Tester {
 						capi.write(compEntry, cRef, RequestTimeout.INFINITE, null);
 					} catch (MzsCoreException e) {
 						 System.out.println("this should never happen :S");
-		
 					}
 				} else {
 					System.out.println("DEBUG: Computerlist is Empty, retrying ");
