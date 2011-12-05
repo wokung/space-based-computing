@@ -38,11 +38,11 @@ public class Logistician extends Worker {
 	// For Container in space
 	private static Capi capi;
 	private static ContainerReference cRef = null;
-	private static ContainerReference shittyRef = null;
-	private static ContainerReference sellRef = null;
+//	private static ContainerReference shittyRef = null;
+//	private static ContainerReference sellRef = null;
     private static String containerName = "store";
-    private static String shittyContainerName = "shitty";
-    private static String sellContainerName = "sell";
+//    private static String shittyContainerName = "shitty";
+//    private static String sellContainerName = "sell";
 	
 	public static void main(String [] args)
 	{
@@ -98,27 +98,27 @@ public class Logistician extends Worker {
 			e1.printStackTrace();
 		}
 		
-		try {
-			shittyRef = capi.lookupContainer(
-					shittyContainerName,
-					uri,
-					MzsConstants.RequestTimeout.INFINITE,
-					null);
-		} catch (MzsCoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		try {
-			sellRef = capi.lookupContainer(
-					sellContainerName,
-					uri,
-					MzsConstants.RequestTimeout.INFINITE,
-					null);
-		} catch (MzsCoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+//		try {
+//			shittyRef = capi.lookupContainer(
+//					shittyContainerName,
+//					uri,
+//					MzsConstants.RequestTimeout.INFINITE,
+//					null);
+//		} catch (MzsCoreException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//		
+//		try {
+//			sellRef = capi.lookupContainer(
+//					sellContainerName,
+//					uri,
+//					MzsConstants.RequestTimeout.INFINITE,
+//					null);
+//		} catch (MzsCoreException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
 		
 		// check if arguments are correct
 		// try to insert worker id into space, exit if not unique
@@ -145,29 +145,32 @@ public class Logistician extends Worker {
 			} catch (MzsCoreException e) {
 				 System.out.println("this should never happen :S");
 			}
-			Computer computer = computerList.get(0);
-			System.out.println("DEBUG: GOT COMPUTERLIST WITH COMPUTER: " + computer.getMakerID());
-			// keep track of Logistician that processed it;
-			computer.setLogisticianID(id);
 			
-			if (computer.isDefect()) {
-				Entry compEntry = new Entry(computer);
+			if (!computerList.isEmpty()) {
+				Computer computer = computerList.get(0);
+				System.out.println("DEBUG: GOT COMPUTERLIST WITH COMPUTER: " + computer.getMakerID());
+				// keep track of Logistician that processed it;
+				computer.setLogisticianID(id);
 				
-				try {
-					capi.write(compEntry, shittyRef, RequestTimeout.INFINITE, null);
-				} catch (MzsCoreException e) {
-					 System.out.println("this should never happen :S");
+				if (computer.isDefect()) {
+					Entry compEntry = new Entry(computer, LabelCoordinator.newCoordinationData("shitty"));
+					
+					try {
+						capi.write(compEntry, cRef, RequestTimeout.INFINITE, null);
+					} catch (MzsCoreException e) {
+						 System.out.println("this should never happen :S");
+					}
+					System.out.println("DEBUG: WROTE DEFECT TRUE TO COMPUTER NR: " + computer.getMakerID());
+				} else {
+					Entry compEntry = new Entry(computer, LabelCoordinator.newCoordinationData("sell"));
+					
+					try {
+						capi.write(compEntry, cRef, RequestTimeout.INFINITE, null);
+					} catch (MzsCoreException e) {
+						 System.out.println("this should never happen :S");
+					}
+					System.out.println("DEBUG: WROTE DEFECT FALSE TO COMPUTER NR: " + computer.getMakerID());
 				}
-				System.out.println("DEBUG: WROTE DEFECT TRUE TO COMPUTER NR: " + computer.getMakerID());
-			} else {
-				Entry compEntry = new Entry(computer);
-				
-				try {
-					capi.write(compEntry, sellRef, RequestTimeout.INFINITE, null);
-				} catch (MzsCoreException e) {
-					 System.out.println("this should never happen :S");
-				}
-				System.out.println("DEBUG: WROTE DEFECT FALSE TO COMPUTER NR: " + computer.getMakerID());
 			}
 		}
 	}

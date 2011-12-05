@@ -10,25 +10,41 @@ import org.mozartspaces.capi3.FifoCoordinator;
 import org.mozartspaces.capi3.KeyCoordinator;
 import org.mozartspaces.capi3.LabelCoordinator;
 import org.mozartspaces.core.*;
+import org.mozartspaces.core.MzsConstants.RequestTimeout;
 
 /**
  * Hello world!
  *
  */
-public class App 
+public class App
 {
+	private static Capi capi;
+	private static URI uri = null;
+	
     public static void main( String[] args )
     {
     	
     	//TODO: check if transactions can be removed again
     	/*TODO: this structure of an app initializing all the containers
     	 * is quite ugly, but at least it works. */
+    	
+    	Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            @Override
+            public void run()
+            {
+            	try {
+        			capi.clearSpace(uri);
+        		} catch (MzsCoreException e) {
+        			 System.out.println("this should never happen :S");
+        		}
+            }
+        });
             
 		ContainerReference cRef = null;
 		ContainerReference shittyRef = null;
 		ContainerReference sellRef = null;
 		
-        URI uri = null;
 		try {
 			uri = new URI("xvsm://localhost:9877");
 		} catch (URISyntaxException e1) {
@@ -40,7 +56,7 @@ public class App
         String sellContainerName = "sell";
         
         MzsCore core = DefaultMzsCore.newInstance();
-        Capi capi = new Capi(core);
+        capi = new Capi(core);
         
         TransactionReference transaction = null;
 		try {
