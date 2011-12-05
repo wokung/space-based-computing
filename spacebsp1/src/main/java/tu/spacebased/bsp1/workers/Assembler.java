@@ -4,6 +4,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import org.mozartspaces.capi3.CountNotMetException;
+import org.mozartspaces.capi3.DuplicateKeyException;
 import org.mozartspaces.capi3.FifoCoordinator;
 import org.mozartspaces.capi3.KeyCoordinator;
 import org.mozartspaces.capi3.LabelCoordinator;
@@ -12,9 +15,11 @@ import org.mozartspaces.core.CapiUtil;
 import org.mozartspaces.core.ContainerReference;
 import org.mozartspaces.core.DefaultMzsCore;
 import org.mozartspaces.core.Entry;
+import org.mozartspaces.core.MzsConstants;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreException;
 import org.mozartspaces.core.MzsConstants.RequestTimeout;
+import org.mozartspaces.core.MzsCoreRuntimeException;
 
 import tu.spacebased.bsp1.components.CPU;
 import tu.spacebased.bsp1.components.Computer;
@@ -37,15 +42,34 @@ import tu.spacebased.bsp1.workers.Producer.Components;
  * @author Kung
  */
 public class Assembler {	
-	private static int id;
+	private static Integer id;
 	
 	// For Container in space
 	private static Capi capi;
 	private static ContainerReference cRef = null;
     private static String containerName = "store";
+    
+    public Assembler(){
+    	super();
+    }
 	
 	public static void main(String [] args)
 	{
+		Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            @Override
+            public void run()
+            {
+            	try {
+        			capi.take(cRef, KeyCoordinator.newSelector(id.toString()), RequestTimeout.INFINITE, null);
+        		} catch (MzsCoreException e) {
+        			 System.out.println("this should never happen :S");
+        		}
+            }
+        });
+		
+		Assembler assembler = new Assembler();
+		
 		// do some command checking
 		System.out.println("Assembler started");
 		
@@ -77,30 +101,32 @@ public class Assembler {
 		}
 		
 		try {
-			cRef = CapiUtil.lookupOrCreateContainer(
+			cRef = capi.lookupContainer(
 					containerName,
 					uri,
-					Arrays.asList(new FifoCoordinator(), new KeyCoordinator()),
-					null, capi);
+					MzsConstants.RequestTimeout.INFINITE,
+					null);
 		} catch (MzsCoreException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		
 		// check if arguments are correct
-		try {
-			int luwid;
-			if (firstArg <= (luwid = getLastUniqueWorkerID())) {
-				System.err.println("Please specify a WorkerId, that is not already initialized, the hightest workerId is " + luwid);
-			}
-		} catch (Exception e) {
-			System.err.println("Couldn't resolve lastuniqueworkerId from space");
-			e.printStackTrace();
-			System.exit(1);
-		}
-		
-		// arguments correct, proceeding
+		// try to insert worker id into space, exit if not unique
 		id = firstArg;
+		
+		Entry entry = new Entry(assembler.getClass(), KeyCoordinator.newCoordinationData(id.toString()));
+        
+    	try {
+			capi.write(cRef, MzsConstants.RequestTimeout.TRY_ONCE, null, entry);
+    	} catch (DuplicateKeyException dup) {
+    		System.out.println("ERROR: A Worker with this key already exists, take another one!");
+    		//TODO: cleanup!
+    		return;
+		} catch (MzsCoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		for (;;) {
 			
@@ -120,7 +146,8 @@ public class Assembler {
 				 System.out.println("this should never happen :S");
 			}
 			Mainboard mainboard = null;
-			if (mainboardList != null) {
+			//these checks should never trigger...
+			if (!mainboardList.isEmpty()) {
 				mainboard = mainboardList.get(0);
 			}
 			
@@ -130,34 +157,55 @@ public class Assembler {
 				 System.out.println("this should never happen :S");
 			}
 			CPU cpu = null;
-			if (cpuList != null) {
+			if (!cpuList.isEmpty()) {
 				cpu = cpuList.get(0);
 			}
+			
+			//TODO: i don't like the look of this, but i don't care right now, time is ticking
 			try {
-				ramList = capi.take(cRef, LabelCoordinator.newSelector(Components.RAM.toString(),4), RequestTimeout.ZERO, null);
-				if (ramList == null) {
-					ramList = capi.take(cRef, LabelCoordinator.newSelector(Components.RAM.toString(),2), RequestTimeout.ZERO, null);
+				ramList = capi.take(cRef, LabelCoordinator.newSelector(Components.RAM.toString(),4), RequestTimeout.TRY_ONCE, null);
+			} catch (CountNotMetException c) {
+				try {
+					ramList = capi.take(cRef, LabelCoordinator.newSelector(Components.RAM.toString(),2), RequestTimeout.TRY_ONCE, null);
+				} catch (CountNotMetException cp) {
+					try {
+						ramList = capi.take(cRef, LabelCoordinator.newSelector(Components.RAM.toString(),1), RequestTimeout.INFINITE, null);
+					} catch (MzsCoreException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} catch (MzsCoreException e) {
+					e.printStackTrace();
 				}
-				if (ramList == null) {
-					ramList = capi.take(cRef, LabelCoordinator.newSelector(Components.RAM.toString(),1), RequestTimeout.ZERO, null);
-				}
-				System.out.println("-----RAMLIST has SIZE: " + ramList.size());
-			} catch (MzsCoreException e) {
-				 ;
+			} catch (MzsCoreException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
 			}
 			
+			System.out.println("-----RAMLIST has SIZE: " + ramList.size());
+			
+			boolean noGpu = true;
+			
 			try {
-				gpuList = capi.take(cRef, LabelCoordinator.newSelector(Components.GPU.toString(),1), RequestTimeout.ZERO, null);
+				gpuList = capi.take(cRef, LabelCoordinator.newSelector(Components.GPU.toString(),1), RequestTimeout.TRY_ONCE, null);
+				noGpu = false;
 			} catch (MzsCoreException e) {
 				 ;
 			}
 			GPU gpu = null;
-			if (gpuList != null) {
+			if (!noGpu) {
 				gpu = gpuList.get(0);
+				
 			}
 			try {
-				System.out.println("-----BUILDING COMPUTER WITH: " + id + " " + mainboard.toString() + " " + cpu.toString() + " " + ramList.toString() + " " + gpu);
+				if (gpu != null) {
+					System.out.println("-----BUILDING COMPUTER WITH: " + id + " " + mainboard.toString() + " " + cpu.toString() + " " + ramList.toString() + " " + gpu);
+				} else {
+					System.out.println("-----BUILDING COMPUTER WITH: " + id + " " + mainboard.toString() + " " + cpu.toString() + " " + ramList.toString() + " and NO GPU");
+				}
 				computer = new Computer(id, mainboard, cpu, ramList, gpu);
+			} catch (NullPointerException n) {
+				n.printStackTrace();
 			} catch (BuildComputerException e1) {
 				e1.printStackTrace();
 			}
@@ -166,23 +214,14 @@ public class Assembler {
 			
 			try {
 				capi.write(compEntry, cRef, RequestTimeout.INFINITE, null);
+			} catch (NullPointerException n) {
+				n.printStackTrace();
 			} catch (MzsCoreException e) {
 				 System.out.println("this should never happen :S");
 			}
 		}
 	}
-	private static int getLastUniqueWorkerID() {
-		
-		ArrayList<Integer>readEntries = null;
-		
-		try {
-			readEntries = capi.take(cRef, KeyCoordinator.newSelector("uniqueWorkerId"), RequestTimeout.INFINITE, null);
-		} catch (MzsCoreException e) {
-			 System.out.println("this should never happen :S");
-		}
-		
-		return (readEntries.get(0));
-	}
+	
 	// GETTER SETTER
 	public int getId(){
 		return id;

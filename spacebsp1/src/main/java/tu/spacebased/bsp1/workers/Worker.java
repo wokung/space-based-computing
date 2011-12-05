@@ -1,7 +1,13 @@
 package tu.spacebased.bsp1.workers;
 
+import java.util.UUID;
+
 public abstract class Worker {	
 	private String id;
+	
+	public Worker() {
+		;
+	}
 	
 	public static void main(String[] args){
 	}

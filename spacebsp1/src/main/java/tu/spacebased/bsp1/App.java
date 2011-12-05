@@ -18,8 +18,11 @@ import org.mozartspaces.core.*;
 public class App 
 {
     public static void main( String[] args )
-    {   
-    	//TODO: check if transactions would be useful
+    {
+    	
+    	//TODO: check if transactions can be removed again
+    	/*TODO: this structure of an app initializing all the containers
+    	 * is quite ugly, but at least it works. */
             
 		ContainerReference cRef = null;
 		ContainerReference shittyRef = null;
@@ -95,7 +98,7 @@ public class App
    						uri,
    						MzsConstants.Container.UNBOUNDED,
    						null,
-   						Arrays.asList(new FifoCoordinator()),
+   						Arrays.asList(new FifoCoordinator(), new AnyCoordinator()),
    						null); //transaction could be a real TransactionRefernce if
    								// we need commit-style
    			} catch (MzsCoreException e1) {
@@ -125,7 +128,7 @@ public class App
    						uri,
    						MzsConstants.Container.UNBOUNDED,
    						null,
-   						Arrays.asList(new FifoCoordinator()),
+   						Arrays.asList(new FifoCoordinator(), new AnyCoordinator()),
    						null); //transaction could be a real TransactionRefernce if
    								// we need commit-style
    			} catch (MzsCoreException e1) {
@@ -148,23 +151,5 @@ public class App
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	
-    	try {
-			transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
-		} catch (MzsCoreException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-
-    	entry = new Entry(i, KeyCoordinator.newCoordinationData("uniqueWorkerId"));
-        
-    	try {
-			capi.write(cRef, MzsConstants.RequestTimeout.INFINITE, transaction, entry);
-			capi.commitTransaction(transaction);
-		} catch (MzsCoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
     }
 }

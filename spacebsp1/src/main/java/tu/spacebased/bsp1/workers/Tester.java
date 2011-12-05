@@ -14,6 +14,7 @@ import org.mozartspaces.core.CapiUtil;
 import org.mozartspaces.core.ContainerReference;
 import org.mozartspaces.core.DefaultMzsCore;
 import org.mozartspaces.core.Entry;
+import org.mozartspaces.core.MzsConstants;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreException;
 import org.mozartspaces.core.MzsConstants.RequestTimeout;
@@ -34,13 +35,13 @@ import tu.spacebased.bsp1.components.Computer;
  * @author Kung
  */
 public class Tester {
-	private static int id;
+	private static Integer id;
 	// For Container in space
 	private static Capi capi;
 	private static ContainerReference cRef = null;
     private static String containerName = "store";
 	
-	public static void main(String[] args)
+	public void main(String[] args)
 	{
 		// do some command checking
 		
@@ -85,19 +86,19 @@ public class Tester {
 		}
 		
 		// check if arguments are correct
-		try {
-			int luwid;
-			if (firstArg <= (luwid = getLastUniqueWorkerID())) {
-				System.err.println("Please specify a WorkerId, that is not already initialized, the hightest workerId is " + luwid);
-			}
-		} catch (Exception e) {
-			System.err.println("Couldn't resolve lastuniqueworkerId from space");
-			e.printStackTrace();
-			System.exit(1);
-		}
-		
-		// arguments correct, proceeding
+		// try to insert worker id into space, exit if not unique
 		id = firstArg;
+		
+		Entry entry = new Entry(this.getClass(), KeyCoordinator.newCoordinationData(id.toString()));
+        
+    	try {
+			capi.write(cRef, MzsConstants.RequestTimeout.TRY_ONCE, null, entry);
+		//TODO: insert the non-uniqueness-exception here, as soon as you know its name 
+    	//} catch () {
+		} catch (MzsCoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		ArrayList<Computer> computerList = null;
 		

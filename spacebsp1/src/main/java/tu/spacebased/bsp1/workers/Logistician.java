@@ -15,9 +15,12 @@ import org.mozartspaces.core.CapiUtil;
 import org.mozartspaces.core.ContainerReference;
 import org.mozartspaces.core.DefaultMzsCore;
 import org.mozartspaces.core.Entry;
+import org.mozartspaces.core.MzsConstants;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreException;
 import org.mozartspaces.core.MzsConstants.RequestTimeout;
+
+import ch.qos.logback.core.db.dialect.MsSQLDialect;
 
 import tu.spacebased.bsp1.components.Computer;
 
@@ -32,7 +35,7 @@ import tu.spacebased.bsp1.components.Computer;
  * @author Kung
  */
 public class Logistician {
-	private static int id;
+	private static Integer id;
 	// For Container in space
 	private static Capi capi;
 	private static ContainerReference cRef = null;
@@ -42,7 +45,7 @@ public class Logistician {
     private static String shittyContainerName = "shitty";
     private static String sellContainerName = "sell";
 	
-	public static void main(String [] args)
+	public void main(String [] args)
 	{
 		// do some command checking
 		
@@ -60,8 +63,6 @@ public class Logistician {
 			System.exit(1);
 		}
 		
-		// get the last Tester from space and check if the id is already initialized
-		
 		MzsCore core = DefaultMzsCore.newInstance();
 	    capi = new Capi(core);
 	    
@@ -74,53 +75,53 @@ public class Logistician {
 		}
 		
 		try {
-			cRef = CapiUtil.lookupOrCreateContainer(
+			cRef = capi.lookupContainer(
 					containerName,
 					uri,
-					Arrays.asList(new FifoCoordinator()),
-					null, capi);
+					MzsConstants.RequestTimeout.INFINITE,
+					null);
 		} catch (MzsCoreException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		
 		try {
-			shittyRef = CapiUtil.lookupOrCreateContainer(
+			shittyRef = capi.lookupContainer(
 					shittyContainerName,
 					uri,
-					Arrays.asList(new AnyCoordinator()),
-					null, capi);
+					MzsConstants.RequestTimeout.INFINITE,
+					null);
 		} catch (MzsCoreException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		
 		try {
-			sellRef = CapiUtil.lookupOrCreateContainer(
+			sellRef = capi.lookupContainer(
 					sellContainerName,
 					uri,
-					Arrays.asList(new AnyCoordinator()),
-					null, capi);
+					MzsConstants.RequestTimeout.INFINITE,
+					null);
 		} catch (MzsCoreException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		
 		// check if arguments are correct
-		try {
-			int luwid;
-			if (firstArg <= (luwid = getLastUniqueWorkerID())) {
-				System.err.println("Please specify a WorkerId, that is not already initialized, the hightest workerId is " + luwid);
-			}
-		} catch (Exception e) {
-			System.err.println("Couldn't resolve lastuniqueworkerId from space");
-			e.printStackTrace();
-			System.exit(1);
-		}
-		
-		// arguments correct, proceeding
+		// try to insert worker id into space, exit if not unique
 		id = firstArg;
 		
+		Entry entry = new Entry(this.getClass(), KeyCoordinator.newCoordinationData(id.toString()));
+        
+    	try {
+			capi.write(cRef, MzsConstants.RequestTimeout.TRY_ONCE, null, entry);
+		//TODO: insert the non-uniqueness-exception here, as soon as you know its name 
+    	//} catch () {
+		} catch (MzsCoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
 		ArrayList<Computer> computerList = null;
 	
 		for (;;) {
@@ -152,19 +153,6 @@ public class Logistician {
 				}
 			}
 		}
-	}
-	
-	private static int getLastUniqueWorkerID() {
-		
-		ArrayList<Integer>readEntries = null;
-		
-		try {
-			readEntries = capi.take(cRef, KeyCoordinator.newSelector("uniqueWorkerId"), RequestTimeout.INFINITE, null);
-		} catch (MzsCoreException e) {
-			 System.out.println("this should never happen :S");
-		}
-		
-		return (readEntries.get(0));
 	}
 	
 	// GETTER SETTER
