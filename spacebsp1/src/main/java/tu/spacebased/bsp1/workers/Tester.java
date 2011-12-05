@@ -184,7 +184,8 @@ public class Tester {
 							defect = true;
 						}
 					} else {
-						for (int i = 0; i < computer.getRam().size() || defect == false; i++) {
+						for (int i = 0; i < computer.getRam().size(); i++) {
+							
 							if (computer.getRam().get(i).isDefect()) {
 								defect = true;
 							}

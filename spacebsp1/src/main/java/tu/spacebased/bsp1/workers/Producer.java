@@ -215,7 +215,7 @@ public class Producer implements Runnable {
 	private boolean getFailure() {
 		// 100%
 		int decision = random.nextInt(100);
-		if(decision < (int) errorRate*100) {
+		if(decision <= (int) errorRate*100) {
 			return true;
 		} else {
 			return false;

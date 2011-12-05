@@ -150,7 +150,7 @@ public class Logistician extends Worker {
 			if (!computerList.isEmpty()) {
 				Computer computer = computerList.get(0);
 
-				System.out.println("DEBUG: GOT COMPUTERLIST WITH COMPUTER CREATOR: " + computer.getMakerID() + " and Tester " + computer.getTesterID());
+				System.out.println("DEBUG: GOT COMPUTERLIST WITH COMPUTER CREATOR: " + computer.getMakerID() + " and Tester " + computer.getTesterID() + " AND ISDEFECT:" + computer.isDefect());
 
 				// keep track of Logistician that processed it;
 				computer.setLogisticianID(id);

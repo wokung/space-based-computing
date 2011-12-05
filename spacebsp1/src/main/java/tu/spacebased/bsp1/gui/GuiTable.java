@@ -33,7 +33,9 @@ public class GuiTable implements ActionListener {
           frame = new JFrame();
           mainContainer = frame.getContentPane();
           frame.setLayout(new BorderLayout());
-
+          
+          frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+          
           schliessen = new JButton("close");
           schliessen.addActionListener(this);
 
@@ -74,10 +76,14 @@ public class GuiTable implements ActionListener {
 				rowA.add("none" );
 				rowA.add(  "none");
 			}
-			rowA.add(  String.valueOf(computer.getCpu().getID()));
 			rowA.add( String.valueOf(computer.getRam().get(0).getID()) );
 			rowA.add( String.valueOf(computer.getRam().get(0).getMakerID()) );
-			rowA.add( String.valueOf(computer.isDefect()));
+			if (computer.isDefect()) {
+				rowA.add("true");
+			} else {
+				rowA.add("false");
+			}
+			
 			
 			data.add( rowA );
           	
