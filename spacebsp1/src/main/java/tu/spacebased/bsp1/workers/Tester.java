@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 
+import org.mozartspaces.capi3.DuplicateKeyException;
 import org.mozartspaces.capi3.FifoCoordinator;
 import org.mozartspaces.capi3.KeyCoordinator;
 import org.mozartspaces.capi3.LabelCoordinator;
@@ -40,9 +41,24 @@ public class Tester {
 	private static Capi capi;
 	private static ContainerReference cRef = null;
     private static String containerName = "store";
-	
-	public void main(String[] args)
+    
+	public static void main(String[] args)
 	{
+		Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            @Override
+            public void run()
+            {
+            	try {
+        			capi.take(cRef, KeyCoordinator.newSelector(id.toString()), RequestTimeout.INFINITE, null);
+        		} catch (MzsCoreException e) {
+        			 System.out.println("this should never happen :S");
+        		}
+            }
+        });
+		
+		Tester tester = new Tester();
+		
 		// do some command checking
 		
 		int firstArg = -1;
@@ -75,11 +91,11 @@ public class Tester {
 		}
 		
 		try {
-			cRef = CapiUtil.lookupOrCreateContainer(
+			cRef = capi.lookupContainer(
 					containerName,
 					uri,
-					Arrays.asList(new FifoCoordinator()),
-					null, capi);
+					MzsConstants.RequestTimeout.INFINITE,
+					null);
 		} catch (MzsCoreException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -89,12 +105,14 @@ public class Tester {
 		// try to insert worker id into space, exit if not unique
 		id = firstArg;
 		
-		Entry entry = new Entry(this.getClass(), KeyCoordinator.newCoordinationData(id.toString()));
+		Entry entry = new Entry(tester.getClass(), KeyCoordinator.newCoordinationData(id.toString()));
         
     	try {
 			capi.write(cRef, MzsConstants.RequestTimeout.TRY_ONCE, null, entry);
-		//TODO: insert the non-uniqueness-exception here, as soon as you know its name 
-    	//} catch () {
+    	} catch (DuplicateKeyException dup) {
+    		System.out.println("ERROR: A Worker with this key already exists, take another one!");
+    		//TODO: cleanup!
+    		return;
 		} catch (MzsCoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -187,32 +205,8 @@ public class Tester {
 		}
 	}
 	
-	private static int getLastUniqueWorkerID() {
-		
-		ArrayList<Integer>readEntries = null;
-		
-		try {
-			readEntries = capi.take(cRef, KeyCoordinator.newSelector("uniqueWorkerId"), RequestTimeout.INFINITE, null);
-		} catch (MzsCoreException e) {
-			 System.out.println("this should never happen :S");
-		}
-		
-		return (readEntries.get(0));
-		/**
-		Entry id = new Entry(readEntries.get(0)+1, KeyCoordinator.newCoordinationData("uniqueWorkerId"));
-		
-		try {
-			capi.write(cRef, RequestTimeout.INFINITE, null, id);
-		} catch (MzsCoreException e) {
-			 System.out.println("this should never happen :S");
-		}
-		
-		return (readEntries.get(0));
-		**/
-	}
-	
 	// GETTER SETTER
-	public int getId(){
+	public Integer getId(){
 		return id;
 	}
 }

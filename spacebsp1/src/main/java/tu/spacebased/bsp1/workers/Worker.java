@@ -1,9 +1,7 @@
 package tu.spacebased.bsp1.workers;
 
-import java.util.UUID;
-
 public abstract class Worker {	
-	private String id;
+	private static Integer id;
 	
 	public Worker() {
 		;
@@ -16,10 +14,10 @@ public abstract class Worker {
 	}
 	
 	// GETTER SETTER
-	public String getId(){
+	public Integer getId(){
 		return id;
 	}
-	public void setId(String id){
+	public void setId(Integer id){
 		this.id = id;
 	}
 }

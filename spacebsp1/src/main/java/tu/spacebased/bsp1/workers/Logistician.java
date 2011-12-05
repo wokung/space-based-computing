@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import org.mozartspaces.capi3.AnyCoordinator;
+import org.mozartspaces.capi3.DuplicateKeyException;
 import org.mozartspaces.capi3.FifoCoordinator;
 import org.mozartspaces.capi3.KeyCoordinator;
 import org.mozartspaces.capi3.LabelCoordinator;
@@ -34,7 +35,7 @@ import tu.spacebased.bsp1.components.Computer;
  * Es werden nur funktionst�chtige Computer ausgeliefert. Defekte Computer werden in einem eigenen Lager gelagert.
  * @author Kung
  */
-public class Logistician {
+public class Logistician extends Worker {
 	private static Integer id;
 	// For Container in space
 	private static Capi capi;
@@ -45,8 +46,22 @@ public class Logistician {
     private static String shittyContainerName = "shitty";
     private static String sellContainerName = "sell";
 	
-	public void main(String [] args)
+	public static void main(String [] args)
 	{
+		Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            @Override
+            public void run()
+            {
+            	try {
+        			capi.take(cRef, KeyCoordinator.newSelector(id.toString()), RequestTimeout.INFINITE, null);
+        		} catch (MzsCoreException e) {
+        			 System.out.println("this should never happen :S");
+        		}
+            }
+        });
+		
+		Logistician logistician = new Logistician();
 		// do some command checking
 		
 		int firstArg = -1;
@@ -111,12 +126,14 @@ public class Logistician {
 		// try to insert worker id into space, exit if not unique
 		id = firstArg;
 		
-		Entry entry = new Entry(this.getClass(), KeyCoordinator.newCoordinationData(id.toString()));
+		Entry entry = new Entry(logistician.getClass(), KeyCoordinator.newCoordinationData(id.toString()));
         
     	try {
 			capi.write(cRef, MzsConstants.RequestTimeout.TRY_ONCE, null, entry);
-		//TODO: insert the non-uniqueness-exception here, as soon as you know its name 
-    	//} catch () {
+    	} catch (DuplicateKeyException dup) {
+    		System.out.println("ERROR: A Worker with this key already exists, take another one!");
+    		//TODO: cleanup!
+    		return;
 		} catch (MzsCoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -156,10 +173,10 @@ public class Logistician {
 	}
 	
 	// GETTER SETTER
-	public int getId(){
+	public Integer getId(){
 		return id;
 	}
-	public void setId(int id){
+	public void setId(Integer id){
 		this.id = id;
 	}
 }

@@ -1,6 +1,7 @@
 package tu.spacebased.bsp1.gui;
 
 import javax.swing.*;
+
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -80,8 +81,8 @@ public class Gui implements ActionListener {
         // TODO: these are dummies - add actual 'ListModels' to the Lists 
         String worker[] = {"CPU","GPU","MAINBOARD", "RAM"};
         String parts[] = {"CPU", "GPU", "MAINBOARD", "RAM"};
-        String shipped[] = {};
-        String failed[] = {};
+        String shipped[] = {"1", "2", "3"};
+        String failed[] = {"1", "2", "3"};
        
         workerList = new JList(worker);
     	partsTypeList = new JList(parts);
@@ -273,30 +274,33 @@ public class Gui implements ActionListener {
     		}
         	
         	//Computer lists
-        	ArrayList<Computer>compEntries;
+        	ArrayList<Computer>compEntries = null;
+        	ArrayList<Computer>compEntries2 = null;
         	
         	//This is quite ugly, but i don't care right now
 			try {
-				readEntries = capi.read(sellRef, AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
+				compEntries = capi.read(sellRef, AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
+			} catch (MzsCoreException e) {
+				 System.out.println("transaction timeout. retry.");
+                 continue;
+			}
+			if (!compEntries.isEmpty()) {
+				shippedProducts = new JList((ListModel) compEntries);
+				shippedProducts.repaint();
+			}
+      	
+        	//This is quite ugly, but i don't care right now
+			try {
+				compEntries2 = capi.read(shittyRef, AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
 			} catch (MzsCoreException e) {
 				 System.out.println("transaction timeout. retry.");
                  continue;
 			}
 			
-			//TODO: this is where i left
-			//shippedProducts = ;
-        	
-        	//This is quite ugly, but i don't care right now
-			try {
-				readEntries = capi.read(shittyRef, AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_ALL), RequestTimeout.INFINITE, null);
-			} catch (MzsCoreException e) {
-				 System.out.println("transaction timeout. retry.");
-                 continue;
+			if (!compEntries.isEmpty()) {
+				failedProducts = new JList((ListModel) compEntries2);
+				failedProducts.repaint();
 			}
-			
-			//TODO: this is where i left
-			//shippedProducts =;
-
 	        
 	        try {
 				Thread.sleep(200);

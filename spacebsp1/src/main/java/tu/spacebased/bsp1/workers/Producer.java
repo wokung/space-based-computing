@@ -173,6 +173,7 @@ public class Producer implements Runnable {
 			}
 			
 		}
+		return;
 	}
 	
 	// TODO get last id from space and increment

@@ -41,18 +41,14 @@ import tu.spacebased.bsp1.workers.Producer.Components;
  * damit sie nicht zu lange im Lager verstauben.
  * @author Kung
  */
-public class Assembler {	
+public class Assembler extends Worker {	
 	private static Integer id;
 	
 	// For Container in space
 	private static Capi capi;
 	private static ContainerReference cRef = null;
     private static String containerName = "store";
-    
-    public Assembler(){
-    	super();
-    }
-	
+
 	public static void main(String [] args)
 	{
 		Runtime.getRuntime().addShutdownHook(new Thread()
@@ -223,7 +219,7 @@ public class Assembler {
 	}
 	
 	// GETTER SETTER
-	public int getId(){
+	public Integer getId(){
 		return id;
 	}
 }
