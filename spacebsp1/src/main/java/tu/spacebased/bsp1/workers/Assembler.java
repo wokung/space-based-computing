@@ -3,15 +3,12 @@ package tu.spacebased.bsp1.workers;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.mozartspaces.capi3.CountNotMetException;
 import org.mozartspaces.capi3.DuplicateKeyException;
-import org.mozartspaces.capi3.FifoCoordinator;
 import org.mozartspaces.capi3.KeyCoordinator;
 import org.mozartspaces.capi3.LabelCoordinator;
 import org.mozartspaces.core.Capi;
-import org.mozartspaces.core.CapiUtil;
 import org.mozartspaces.core.ContainerReference;
 import org.mozartspaces.core.DefaultMzsCore;
 import org.mozartspaces.core.Entry;
@@ -19,7 +16,6 @@ import org.mozartspaces.core.MzsConstants;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreException;
 import org.mozartspaces.core.MzsConstants.RequestTimeout;
-import org.mozartspaces.core.MzsCoreRuntimeException;
 
 import tu.spacebased.bsp1.components.CPU;
 import tu.spacebased.bsp1.components.Computer;

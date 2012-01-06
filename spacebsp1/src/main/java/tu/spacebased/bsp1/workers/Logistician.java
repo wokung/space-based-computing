@@ -34,10 +34,10 @@ public class Logistician extends Worker {
 	// For Container in space
 	private static Capi capi;
 	private static ContainerReference cRef = null;
-//	private static ContainerReference shittyRef = null;
-//	private static ContainerReference sellRef = null;
+	private static ContainerReference shittyRef = null;
+	private static ContainerReference sellRef = null;
     private static String containerName = "store";
-
+    
     private static String shittyContainerName = "shitty";
     private static String sellContainerName = "sell";
     private static TransactionReference transaction = null;
@@ -46,7 +46,7 @@ public class Logistician extends Worker {
 //    private static String sellContainerName = "sell";
 	
 	public static void main(String [] args)
-	{
+	{	
 		Runtime.getRuntime().addShutdownHook(new Thread()
         {
             @Override
@@ -61,8 +61,8 @@ public class Logistician extends Worker {
         });
 		
 		Logistician logistician = new Logistician();
-		// do some command checking
 		
+		// do some command checking
 		int firstArg = -1;
 		
 		if (args.length == 1) {
@@ -99,27 +99,27 @@ public class Logistician extends Worker {
 			e1.printStackTrace();
 		}
 		
-//		try {
-//			shittyRef = capi.lookupContainer(
-//					shittyContainerName,
-//					uri,
-//					MzsConstants.RequestTimeout.INFINITE,
-//					null);
-//		} catch (MzsCoreException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
-//		
-//		try {
-//			sellRef = capi.lookupContainer(
-//					sellContainerName,
-//					uri,
-//					MzsConstants.RequestTimeout.INFINITE,
-//					null);
-//		} catch (MzsCoreException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
+		try {
+			shittyRef = capi.lookupContainer(
+					shittyContainerName,
+					uri,
+					MzsConstants.RequestTimeout.INFINITE,
+					null);
+		} catch (MzsCoreException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		try {
+			sellRef = capi.lookupContainer(
+					sellContainerName,
+					uri,
+					MzsConstants.RequestTimeout.INFINITE,
+					null);
+		} catch (MzsCoreException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		// check if arguments are correct
 		// try to insert worker id into space, exit if not unique
@@ -202,8 +202,5 @@ public class Logistician extends Worker {
 	// GETTER SETTER
 	public Integer getId(){
 		return id;
-	}
-	public void setId(Integer id){
-		this.id = id;
 	}
 }

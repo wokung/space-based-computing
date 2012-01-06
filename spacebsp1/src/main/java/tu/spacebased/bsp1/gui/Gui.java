@@ -5,7 +5,6 @@ import javax.swing.*;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
@@ -312,7 +311,6 @@ public class Gui implements ActionListener {
         	//Computer lists
 
         	ArrayList<Computer>compEntries = null;
-        	ArrayList<Computer>compEntries2 = null;
         	
         	//This is quite ugly, but i don't care right now
 			try {
@@ -403,33 +401,16 @@ public class Gui implements ActionListener {
     		return null;
     	}
     }
-//Create Producer
 
+    //Create Producer
     public static void createProducer(int quantity,double errorRate,tu.spacebased.bsp1.workers.Producer.Components components) {
     	
     	String makerID;
-    	/**
-		ArrayList<String>readId = null;
-		
-		try {
-			readId = capi.take(cRef, KeyCoordinator.newSelector("uniqueWorkerId"), RequestTimeout.INFINITE, null);
-		} catch (MzsCoreException e) {
-			 System.out.println("this should never happen :S");
-		}
-		
-		Entry id = new Entry(readId.get(0)+1, KeyCoordinator.newCoordinationData("uniqueId"));
-		
-		try {
-			capi.write(cRef, RequestTimeout.INFINITE, null, id);
-		} catch (MzsCoreException e) {
-			 System.out.println("this should never happen :S");
-		}
-		
-		makerID = readId.get(0);
-		*/
+
     	UUID uid= UUID.randomUUID();
     	makerID = uid.toString();
-		Producer prod = new Producer(quantity, makerID, errorRate, components);
+    	// TODO: remove Producer prod = 
+    	new Producer(quantity, makerID, errorRate, components);
 		
     }
 

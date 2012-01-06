@@ -10,7 +10,6 @@ import org.mozartspaces.capi3.FifoCoordinator;
 import org.mozartspaces.capi3.KeyCoordinator;
 import org.mozartspaces.capi3.LabelCoordinator;
 import org.mozartspaces.core.*;
-import org.mozartspaces.core.MzsConstants.RequestTimeout;
 
 /**
  * Hello world!
