@@ -6,18 +6,19 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
 
-import org.mozartspaces.capi3.KeyCoordinator;
-import org.mozartspaces.capi3.LabelCoordinator;
-import org.mozartspaces.core.Capi;
-import org.mozartspaces.core.ContainerReference;
-import org.mozartspaces.core.DefaultMzsCore;
-import org.mozartspaces.core.Entry;
-import org.mozartspaces.core.MzsConstants;
-import org.mozartspaces.core.MzsCore;
-import org.mozartspaces.core.MzsCoreException;
-import org.mozartspaces.core.TransactionReference;
-import org.mozartspaces.core.MzsConstants.RequestTimeout;
+//import org.mozartspaces.capi3.KeyCoordinator;
+//import org.mozartspaces.capi3.LabelCoordinator;
+//import org.mozartspaces.core.Capi;
+//import org.mozartspaces.core.ContainerReference;
+//import org.mozartspaces.core.DefaultMzsCore;
+//import org.mozartspaces.core.Entry;
+//import org.mozartspaces.core.MzsConstants;
+//import org.mozartspaces.core.MzsCore;
+//import org.mozartspaces.core.MzsCoreException;
+//import org.mozartspaces.core.TransactionReference;
+//import org.mozartspaces.core.MzsConstants.RequestTimeout;
 
+import tu.spacebased.bsp1.com.space.Production;
 import tu.spacebased.bsp1.components.CPU;
 import tu.spacebased.bsp1.components.Component;
 import tu.spacebased.bsp1.components.GPU;
@@ -58,13 +59,6 @@ public class Producer implements Runnable {
 	private Thread thread;
 	private Random random = null;
 	
-	// For Container in space
-	private Capi capi;
-	private ContainerReference cRef = null;
-    private String containerName = "store";
-	TransactionReference transaction = null;
-	URI uri = null;
-	
 	/**
 	 * Constructor of Producer
 	 * Producer needs the number of pieces to produce. Its creator must also be saved.
@@ -87,30 +81,8 @@ public class Producer implements Runnable {
 			thread.start();
 		}
 		
-		MzsCore core = DefaultMzsCore.newInstance();
-	    capi = new Capi(core);
-	    
-		try {
-			uri = new URI("xvsm://localhost:9877");
-		} catch (URISyntaxException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		try {
-			transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
-		} catch (MzsCoreException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
+		Production.setUp();
 		
-		try {
-			cRef = capi.lookupContainer(containerName, uri, MzsConstants.RequestTimeout.INFINITE, transaction);
-			capi.commitTransaction(transaction);
-		} catch (MzsCoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 	}
 	
 	public void run() {
@@ -130,79 +102,32 @@ public class Producer implements Runnable {
 			// create new objects
 			switch (component) {
 				case CPU:
-					newComponent = new CPU(uniqueID(), makerID, getFailure());
+					newComponent = new CPU(Production.getNewPartID(), makerID, getFailure());
 					break;
 						
 				case GPU:
-					newComponent = new GPU(uniqueID(), makerID, getFailure());
+					newComponent = new GPU(Production.getNewPartID(), makerID, getFailure());
 					break;
 						     
 				case MAINBOARD:
-					newComponent = new Mainboard(uniqueID(), makerID, getFailure());
+					newComponent = new Mainboard(Production.getNewPartID(), makerID, getFailure());
 					break;
 								
 				case RAM:
-					newComponent = new Ram(uniqueID(), makerID, getFailure());
+					newComponent = new Ram(Production.getNewPartID(), makerID, getFailure());
 					break;
 						     
 				default:
 					thread.interrupt();
 					break;
 			}
-
-			Entry entry = new Entry(newComponent, LabelCoordinator.newCoordinationData(component.toString()));
-
+			
+			Production.pushComponent(newComponent);
 			
 			System.out.println("i inserted a"+component.toString());
 			
-			try {
-				transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
-			} catch (MzsCoreException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-			
-			try {
-				capi.write(cRef, MzsConstants.RequestTimeout.TRY_ONCE, transaction, entry);
-				capi.commitTransaction(transaction);
-			} catch (MzsCoreException e) {
-				 System.out.println("this should never happen :S");
-			}
-			
 		}
 		return;
-	}
-	
-	// TODO get last id from space and increment
-	private int uniqueID() {
-		
-		ArrayList<Integer>readEntries = null;
-		
-		try {
-			readEntries = capi.take(cRef, KeyCoordinator.newSelector("uniqueId"), 1000, null);
-		} catch (MzsCoreException e) {
-			 System.out.println("this should never happen :S");
-		}
-		
-		Integer id = readEntries.get(0);
-		
-		Entry postId = new Entry(id+1, KeyCoordinator.newCoordinationData("uniqueId"));
-		
-		try {
-			transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
-		} catch (MzsCoreException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		
-		try {
-			capi.write(cRef, RequestTimeout.INFINITE, transaction, postId);
-			capi.commitTransaction(transaction);
-		} catch (MzsCoreException e) {
-			 System.out.println("this should never happen :S");
-		}
-		
-		return (id);
 	}
 	
 	/**
