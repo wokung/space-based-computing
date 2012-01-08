@@ -6,18 +6,18 @@ public class GPU implements Component {
 	/**
 	 * 
 	 */
-	private final int id;
+	private final String id;
 	private final String makerId;
 	private final boolean defect;
 	
 	// Constructor
-	public GPU(int ID, String makerID, boolean defect) {
+	public GPU(String ID, String makerID, boolean defect) {
 		this.id = ID;
 		this.makerId = makerID;
 		this.defect = defect;
 	}
 	
-	public int getID() {
+	public String getID() {
 		return id;
 	}
 

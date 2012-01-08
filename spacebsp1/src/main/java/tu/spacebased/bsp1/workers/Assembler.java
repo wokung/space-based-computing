@@ -1,11 +1,17 @@
 package tu.spacebased.bsp1.workers;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
+import org.mozartspaces.capi3.AnyCoordinator;
 import org.mozartspaces.capi3.CountNotMetException;
 import org.mozartspaces.capi3.DuplicateKeyException;
+import org.mozartspaces.capi3.FifoCoordinator;
 import org.mozartspaces.capi3.KeyCoordinator;
 import org.mozartspaces.capi3.LabelCoordinator;
 import org.mozartspaces.core.Capi;
@@ -16,8 +22,15 @@ import org.mozartspaces.core.MzsConstants;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreException;
 import org.mozartspaces.core.MzsConstants.RequestTimeout;
+import org.mozartspaces.core.TransactionReference;
+import org.mozartspaces.notifications.Notification;
+import org.mozartspaces.notifications.NotificationListener;
+import org.mozartspaces.notifications.NotificationManager;
+import org.mozartspaces.notifications.Operation;
 
+import tu.spacebased.bsp1.App;
 import tu.spacebased.bsp1.components.CPU;
+import tu.spacebased.bsp1.components.Component;
 import tu.spacebased.bsp1.components.Computer;
 import tu.spacebased.bsp1.components.GPU;
 import tu.spacebased.bsp1.components.Mainboard;
@@ -37,14 +50,22 @@ import tu.spacebased.bsp1.workers.Producer.Components;
  * damit sie nicht zu lange im Lager verstauben.
  * @author Kung
  */
-public class Assembler extends Worker {	
+public class Assembler extends Worker implements NotificationListener {	
 	private static Integer id;
 	
 	// For Container in space
 	private static Capi capi;
 	private static ContainerReference cRef = null;
     private static String containerName = "store";
-
+    
+    private static NotificationManager notification = null;
+    
+	private static ContainerReference crefMainboards;
+	private static ContainerReference crefCpu;
+	private static ContainerReference crefGpu;
+	private static ContainerReference crefRam;
+	private static ContainerReference crefPc;
+	private static URI uri = null;
 	public static void main(String [] args)
 	{
 		Runtime.getRuntime().addShutdownHook(new Thread()
@@ -83,8 +104,9 @@ public class Assembler extends Worker {
 		
 		MzsCore core = DefaultMzsCore.newInstance();
 	    capi = new Capi(core);
+	    notification = new NotificationManager(core);
 	    
-	    URI uri = null;
+	   
 		try {
 			uri = new URI("xvsm://localhost:9877");
 		} catch (URISyntaxException e1) {
@@ -92,6 +114,26 @@ public class Assembler extends Worker {
 			e1.printStackTrace();
 		}
 		
+		try {
+			//lookup containers
+			crefMainboards = App.getMainboardContainer(uri, capi);
+			crefCpu = App.getCpuContainer(uri, capi);
+			crefGpu = App.getGpuContainer(uri, capi);
+			crefRam = App.getRamContainer(uri, capi);
+			crefPc = App.getPcContainer(uri, capi);
+
+			//create Notifications
+			notification.createNotification(crefMainboards, assembler, Operation.WRITE);
+			notification.createNotification(crefCpu, assembler, Operation.WRITE);
+			notification.createNotification(crefGpu, assembler, Operation.WRITE);
+			notification.createNotification(crefRam, assembler, Operation.WRITE);
+		} catch (MzsCoreException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		/*
 		try {
 			cRef = capi.lookupContainer(
 					containerName,
@@ -102,25 +144,36 @@ public class Assembler extends Worker {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+		*/
 		// check if arguments are correct
 		// try to insert worker id into space, exit if not unique
-		id = firstArg;
-		
-		Entry entry = new Entry(assembler.getClass(), KeyCoordinator.newCoordinationData(id.toString()));
-        
+//		id = firstArg;
+//		
+//		Entry entry = new Entry(assembler.getClass(), KeyCoordinator.newCoordinationData(id.toString()));
+//        
+//    	try {
+//			capi.write(cRef, MzsConstants.RequestTimeout.TRY_ONCE, null, entry);
+//    	} catch (DuplicateKeyException dup) {
+//    		System.out.println("ERROR: A Worker with this key already exists, take another one!");
+//    		//TODO: cleanup!
+//    		return;
+//		} catch (MzsCoreException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+    	
+		ArrayList<Component> readMainboards = new ArrayList<Component>(); 
+    	
     	try {
-			capi.write(cRef, MzsConstants.RequestTimeout.TRY_ONCE, null, entry);
-    	} catch (DuplicateKeyException dup) {
-    		System.out.println("ERROR: A Worker with this key already exists, take another one!");
-    		//TODO: cleanup!
-    		return;
-		} catch (MzsCoreException e) {
+			readMainboards = capi.read(crefMainboards, Arrays.asList(FifoCoordinator.newSelector(MzsConstants.Selecting.COUNT_MAX)), MzsConstants.RequestTimeout.INFINITE , null);
+		} catch (MzsCoreException e3) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e3.printStackTrace();
 		}
+    	
 		
-		for (;;) {
+		for (int i=0;i<=readMainboards.size();i++) {
 			
 			Computer computer = null;
 			
@@ -209,10 +262,10 @@ public class Assembler extends Worker {
 				e1.printStackTrace();
 			}
 			
-			Entry compEntry = new Entry(computer, LabelCoordinator.newCoordinationData("computer"));
-			
+			//Entry compEntry = new Entry(computer, LabelCoordinator.newCoordinationData("computer"));
+			Entry compEntry = new Entry(computer, LabelCoordinator.newCoordinationData("untested"));
 			try {
-				capi.write(compEntry, cRef, RequestTimeout.INFINITE, null);
+				capi.write(compEntry, crefPc, RequestTimeout.INFINITE, null);
 			} catch (NullPointerException n) {
 				n.printStackTrace();
 			} catch (MzsCoreException e) {
@@ -224,5 +277,110 @@ public class Assembler extends Worker {
 	// GETTER SETTER
 	public Integer getId(){
 		return id;
+	}
+	
+	@Override
+	public void entryOperationFinished(Notification notificaton, Operation operation,
+			List<? extends Serializable> components) {
+		try {
+			Component component = (Component) ((Entry) components.get(0)).getValue();
+			TransactionReference tx = capi.createTransaction(5000, uri);
+
+			ArrayList<CPU> cpus=null;
+			ArrayList<Mainboard> mainboards=null;
+			ArrayList<Ram> rams=null;
+			ArrayList<GPU> gpus=null;
+
+			boolean create = false;
+
+			if(component instanceof Mainboard){
+				try {
+	                cpus = capi.take(crefCpu, Arrays.asList(AnyCoordinator.newSelector(1)), MzsConstants.RequestTimeout.ZERO, tx);
+	                mainboards = new ArrayList<Mainboard>();
+	                mainboards.add((Mainboard) component);
+	                try {
+	                	gpus = capi.take(crefGpu, Arrays.asList(AnyCoordinator.newSelector(1)), MzsConstants.RequestTimeout.ZERO, tx);
+	                } catch (MzsCoreException e) {
+	                	gpus = new ArrayList<GPU>();
+	                	gpus.add(null);
+		            }
+	                rams = capi.read(crefRam, Arrays.asList(AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_MAX)),
+           		         			 MzsConstants.RequestTimeout.ZERO, tx);
+	                create = true;
+				} catch (MzsCoreException e) {
+	            	create = false;
+	            }
+			} else if(component instanceof CPU){
+				try {
+	                cpus = new ArrayList<CPU>();
+	                cpus.add((CPU) component);
+	                mainboards = capi.take(crefMainboards, Arrays.asList(FifoCoordinator.newSelector(1)),
+           		         			 MzsConstants.RequestTimeout.ZERO, tx);
+	                try {
+	                	gpus = capi.take(crefGpu, Arrays.asList(AnyCoordinator.newSelector(1)), MzsConstants.RequestTimeout.ZERO, tx);
+	                } catch (MzsCoreException e) {
+	                	gpus = new ArrayList<GPU>();
+	                	gpus.add(null);
+		            }
+	                rams = capi.read(crefRam, Arrays.asList(AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_MAX)),
+           		         			 MzsConstants.RequestTimeout.ZERO, tx);
+	                create = true;
+	            } catch (MzsCoreException e) {
+	            	create = false;
+	            }
+			} else if(component instanceof Ram){
+				try {
+	                cpus = capi.take(crefCpu, Arrays.asList(AnyCoordinator.newSelector(1)), MzsConstants.RequestTimeout.ZERO, tx);
+	                mainboards = capi.take(crefMainboards, Arrays.asList(FifoCoordinator.newSelector(1)), MzsConstants.RequestTimeout.ZERO, tx);
+	                try {
+	                	gpus = capi.take(crefGpu, Arrays.asList(AnyCoordinator.newSelector(1)), MzsConstants.RequestTimeout.ZERO, tx);
+	                } catch (MzsCoreException e) {
+	                	gpus = new ArrayList<GPU>();
+	                	gpus.add(null);
+		            }
+	                rams = capi.read(crefRam, Arrays.asList(AnyCoordinator.newSelector(MzsConstants.Selecting.COUNT_MAX)),
+           		         			 MzsConstants.RequestTimeout.ZERO, tx);
+	                create = true;
+	            } catch (MzsCoreException e) {
+	            	create = false;
+	            }
+			} 
+
+			if(create){
+				Computer computer=null;		
+				switch(rams.size()){
+					case 0:
+						capi.rollbackTransaction( tx );
+						return;
+					case 1:
+						rams = capi.take(crefRam, Arrays.asList(AnyCoordinator.newSelector(1)), MzsConstants.RequestTimeout.ZERO, tx);
+						break;
+					case 2:
+						rams = capi.take(crefRam, Arrays.asList(AnyCoordinator.newSelector(2)), MzsConstants.RequestTimeout.ZERO, tx);
+						break;
+					case 3:
+						rams = capi.take(crefRam, Arrays.asList(AnyCoordinator.newSelector(2)), MzsConstants.RequestTimeout.ZERO, tx);
+						break;
+					default:
+						rams = capi.take(crefRam, Arrays.asList(AnyCoordinator.newSelector(4)), MzsConstants.RequestTimeout.ZERO, tx);
+						break;
+				}
+
+				capi.commitTransaction(tx);
+
+				computer = new Computer(id, mainboards.get(0), cpus.get(0),rams, gpus.get(0));
+
+				Entry entry = new Entry(computer, LabelCoordinator.newCoordinationData("untested"));
+				
+				capi.write(crefPc, MzsConstants.RequestTimeout.DEFAULT, null, entry);
+				System.out.println("Worker: " + id + ", Pc build with id: "  );
+			}
+        } catch (MzsCoreException e) {
+        	System.out.println("Worker: " + id + ", Pc build with id: "  );
+            e.printStackTrace();
+        } catch (BuildComputerException e) {
+			e.printStackTrace();
+		}
+		
 	}
 }

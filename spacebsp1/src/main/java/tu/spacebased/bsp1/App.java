@@ -2,7 +2,9 @@ package tu.spacebased.bsp1;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.mozartspaces.capi3.AnyCoordinator;
 import org.mozartspaces.capi3.ContainerNameNotAvailableException;
@@ -10,6 +12,8 @@ import org.mozartspaces.capi3.FifoCoordinator;
 import org.mozartspaces.capi3.KeyCoordinator;
 import org.mozartspaces.capi3.LabelCoordinator;
 import org.mozartspaces.core.*;
+import org.mozartspaces.core.MzsConstants.Container;
+import org.mozartspaces.core.MzsConstants.RequestTimeout;
 
 /**
  * Hello world!
@@ -58,6 +62,7 @@ public class App
         capi = new Capi(core);
         
         TransactionReference transaction = null;
+        /*
 		try {
 			transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
 		} catch (MzsCoreException e2) {
@@ -65,6 +70,8 @@ public class App
 			e2.printStackTrace();
 		}
 
+		
+		
 	    try {
 			cRef = capi.createContainer(
 				containerName,
@@ -166,5 +173,106 @@ public class App
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+    	
+    	*/
     }
+    
+
+	public static ContainerReference getCpuContainer(final URI uri, final Capi capi) throws MzsCoreException{
+		ContainerReference cref;
+		try {
+			cref = capi.lookupContainer("CpuContainer", uri, RequestTimeout.DEFAULT, null);
+		} catch (MzsCoreException e) {
+			List<AnyCoordinator> coordinator = new ArrayList<AnyCoordinator>();
+			coordinator.add(new AnyCoordinator());
+			cref = capi.createContainer("CpuContainer", uri, Container.UNBOUNDED, coordinator, null, null);
+		}
+		return cref;
+	}
+
+	public static ContainerReference getGpuContainer(final URI uri, final Capi capi) throws MzsCoreException{
+		ContainerReference cref;
+		try {
+			cref = capi.lookupContainer("GpuContainer", uri, RequestTimeout.DEFAULT, null);
+		} catch (MzsCoreException e) {
+			List<AnyCoordinator> coordinator = new ArrayList<AnyCoordinator>();
+			coordinator.add(new AnyCoordinator());
+			cref = capi.createContainer("GpuContainer", uri, Container.UNBOUNDED, coordinator, null, null);
+		}
+		return cref;
+	}
+
+	public static ContainerReference getRamContainer(final URI uri, final Capi capi) throws MzsCoreException{
+		ContainerReference cref;
+		try {
+			cref = capi.lookupContainer("RamContainer", uri, RequestTimeout.DEFAULT, null);
+		} catch (MzsCoreException e) {
+			List<AnyCoordinator> coordinator = new ArrayList<AnyCoordinator>();
+			coordinator.add(new AnyCoordinator());
+			cref = capi.createContainer("RamContainer", uri, Container.UNBOUNDED, coordinator, null, null);
+		}
+		return cref;
+	}
+
+	public static ContainerReference getMainboardContainer(final URI uri, final Capi capi) throws MzsCoreException{
+		ContainerReference cref;
+		try {
+			cref = capi.lookupContainer("MainboardContainer", uri, RequestTimeout.DEFAULT, null);
+		} catch (MzsCoreException e) {
+			List<FifoCoordinator> coordinator = new ArrayList<FifoCoordinator>();
+			coordinator.add(new FifoCoordinator());
+			cref = capi.createContainer("MainboardContainer", uri, Container.UNBOUNDED, coordinator, null, null);
+		}
+		return cref;
+	}
+
+	public static ContainerReference getPcContainer(final URI uri, final Capi capi) throws MzsCoreException{
+		ContainerReference cref;
+		try {
+			cref = capi.lookupContainer("PcContainer", uri, RequestTimeout.DEFAULT, null);
+		} catch (MzsCoreException e) {
+			List<LabelCoordinator> coordinator = new ArrayList<LabelCoordinator>();
+			coordinator.add(new LabelCoordinator());
+			cref = capi.createContainer("PcContainer", uri, Container.UNBOUNDED, coordinator, null, null);
+		}
+		return cref;
+	}
+
+	public static ContainerReference getPcDefectContainer(final URI uri, final Capi capi) throws MzsCoreException{
+		ContainerReference cref;
+		try {
+			cref = capi.lookupContainer("PcDefectContainer", uri, RequestTimeout.DEFAULT, null);
+		} catch (MzsCoreException e) {
+			List<AnyCoordinator> coordinator = new ArrayList<AnyCoordinator>();
+			coordinator.add(new AnyCoordinator());
+			cref = capi.createContainer("PcDefectContainer", uri, Container.UNBOUNDED, coordinator, null, null);
+		}
+		return cref;
+	}
+	
+	// for notifications
+	public static ContainerReference getEventContainer(final URI uri, final Capi capi) throws MzsCoreException{
+		ContainerReference cref;
+		try {
+			cref = capi.lookupContainer("SpaceEvent", uri, RequestTimeout.DEFAULT, null);
+		} catch (MzsCoreException e) {
+			List<FifoCoordinator> coordinator = new ArrayList<FifoCoordinator>();
+			coordinator.add(new FifoCoordinator());
+			cref = capi.createContainer("SpaceEvent", uri, Container.UNBOUNDED, coordinator, null, null);
+		}
+		return cref;
+	}
+
+	public static ContainerReference getStorageContainer(final URI uri, final Capi capi) throws MzsCoreException{
+		ContainerReference cref;
+		try {
+			cref = capi.lookupContainer("Storage", uri, RequestTimeout.DEFAULT, null);
+		} catch (MzsCoreException e) {
+			List<AnyCoordinator> coordinator = new ArrayList<AnyCoordinator>();
+			coordinator.add(new AnyCoordinator());
+			cref = capi.createContainer("Storage", uri, Container.UNBOUNDED, coordinator, null, null);
+		}
+		return cref;
+	}
+    
 }

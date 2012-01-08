@@ -18,6 +18,7 @@ import org.mozartspaces.core.MzsCoreException;
 import org.mozartspaces.core.TransactionReference;
 import org.mozartspaces.core.MzsConstants.RequestTimeout;
 
+import tu.spacebased.bsp1.App;
 import tu.spacebased.bsp1.components.CPU;
 import tu.spacebased.bsp1.components.Component;
 import tu.spacebased.bsp1.components.GPU;
@@ -96,21 +97,21 @@ public class Producer implements Runnable {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
-		try {
-			transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
-		} catch (MzsCoreException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		
-		try {
-			cRef = capi.lookupContainer(containerName, uri, MzsConstants.RequestTimeout.INFINITE, transaction);
-			capi.commitTransaction(transaction);
-		} catch (MzsCoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+//
+//		try {
+//			transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
+//		} catch (MzsCoreException e2) {
+//			// TODO Auto-generated catch block
+//			e2.printStackTrace();
+//		}
+//		
+//		try {
+//			cRef = capi.lookupContainer(containerName, uri, MzsConstants.RequestTimeout.INFINITE, transaction);
+//			capi.commitTransaction(transaction);
+//		} catch (MzsCoreException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
 	}
 	
 	public void run() {
@@ -126,23 +127,51 @@ public class Producer implements Runnable {
 		for (int i = 0; i<quantity; i++) {
 			// simulate work
 			simulateWork();
-						
+			
+			ContainerReference cref=null;
+			
+			
 			// create new objects
 			switch (component) {
 				case CPU:
-					newComponent = new CPU(uniqueID(), makerID, getFailure());
+					//newComponent = new CPU(uniqueID(), makerID, getFailure());
+					newComponent = new CPU(UUID.randomUUID().toString(), makerID, getFailure());
+					try {
+						cref = App.getCpuContainer(uri, capi);
+					} catch (MzsCoreException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					break;
 						
 				case GPU:
-					newComponent = new GPU(uniqueID(), makerID, getFailure());
+					newComponent = new GPU(UUID.randomUUID().toString(), makerID, getFailure());
+					try {
+						cref = App.getGpuContainer(uri, capi);
+					} catch (MzsCoreException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					break;
 						     
 				case MAINBOARD:
-					newComponent = new Mainboard(uniqueID(), makerID, getFailure());
+					newComponent = new Mainboard(UUID.randomUUID().toString(), makerID, getFailure());
+					try {
+						cref = App.getMainboardContainer(uri, capi);
+					} catch (MzsCoreException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					break;
 								
 				case RAM:
-					newComponent = new Ram(uniqueID(), makerID, getFailure());
+					newComponent = new Ram(UUID.randomUUID().toString(), makerID, getFailure());
+					try {
+						cref = App.getRamContainer(uri, capi);
+					} catch (MzsCoreException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					break;
 						     
 				default:
@@ -150,24 +179,44 @@ public class Producer implements Runnable {
 					break;
 			}
 
-			Entry entry = new Entry(newComponent, LabelCoordinator.newCoordinationData(component.toString()));
+			TransactionReference tx;
+			
+			try {
+				
+				tx = capi.createTransaction(5000, uri);
+			
+		        System.out.println("Worker: " + makerID + ", creates " + newComponent.toString() + ", Defect: " + newComponent.isDefect());
 
-			
-			System.out.println("i inserted a"+component.toString());
-			
-			try {
-				transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
-			} catch (MzsCoreException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-			
-			try {
-				capi.write(cRef, MzsConstants.RequestTimeout.TRY_ONCE, transaction, entry);
-				capi.commitTransaction(transaction);
+		        capi.write(cref, RequestTimeout.DEFAULT, tx, new Entry(newComponent));
+
+		        capi.commitTransaction(tx);
+		        
 			} catch (MzsCoreException e) {
-				 System.out.println("this should never happen :S");
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+			
+//			Entry entry = new Entry(newComponent, LabelCoordinator.newCoordinationData(component.toString()));
+//
+//			
+//			System.out.println("i inserted a"+component.toString());
+//			
+//			
+//			
+//			
+//			try {
+//				transaction = capi.createTransaction(MzsConstants.RequestTimeout.INFINITE, uri);
+//			} catch (MzsCoreException e2) {
+//				// TODO Auto-generated catch block
+//				e2.printStackTrace();
+//			}
+//			
+//			try {
+//				capi.write(cRef, MzsConstants.RequestTimeout.TRY_ONCE, transaction, entry);
+//				capi.commitTransaction(transaction);
+//			} catch (MzsCoreException e) {
+//				 System.out.println("this should never happen :S");
+//			}
 			
 		}
 		return;

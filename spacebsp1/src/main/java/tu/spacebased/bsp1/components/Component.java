@@ -7,7 +7,7 @@ import java.io.Serializable;
  */
 public interface Component extends Serializable  {
 	// define mandatory getter for every component of a computer
-	public int getID();
+	public String getID();
 	public String getMakerID();
 	public boolean isDefect();
 

@@ -1,18 +1,22 @@
 package tu.spacebased.bsp1.gui;
-
+ 
 import javax.swing.*;
-
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
+import java.lang.reflect.Field;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.UUID;
-
+import org.mozartspaces.core.Entry;
 import org.mozartspaces.capi3.*;
 import org.mozartspaces.core.Capi;
 import org.mozartspaces.core.ContainerReference;
@@ -21,9 +25,18 @@ import org.mozartspaces.core.MzsConstants;
 import org.mozartspaces.core.MzsConstants.RequestTimeout;
 import org.mozartspaces.core.MzsCore;
 import org.mozartspaces.core.MzsCoreException;
-
+import org.mozartspaces.notifications.Notification;
+import org.mozartspaces.notifications.NotificationListener;
+import org.mozartspaces.notifications.NotificationManager;
+import org.mozartspaces.notifications.Operation;
+import java.util.Vector;
+import tu.spacebased.bsp1.App;
+import tu.spacebased.bsp1.components.CPU;
 import tu.spacebased.bsp1.components.Component;
 import tu.spacebased.bsp1.components.Computer;
+import tu.spacebased.bsp1.components.GPU;
+import tu.spacebased.bsp1.components.Mainboard;
+import tu.spacebased.bsp1.components.Ram;
 import tu.spacebased.bsp1.workers.Producer;
 
 public class Gui implements ActionListener {
@@ -418,5 +431,166 @@ public class Gui implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	// FOR NOTIFICATIONS AND REFRESHING
+
+	public TableModel cpus() throws Exception {
+		MzsCore core = DefaultMzsCore.newInstance(0);
+		Capi    capi = new Capi(core);
+		URI     space = URI.create("xvsm://localhost:9877");			
+		ContainerReference cref = App.getCpuContainer( space, capi );
+		return new SpaceTableModel(CPU.class, core, cref );
+	}
+
+	public TableModel gpus() throws Exception{
+		MzsCore core = DefaultMzsCore.newInstance(0);
+		Capi    capi = new Capi(core);
+		URI     space = URI.create("xvsm://localhost:9877");			
+		ContainerReference cref = App.getGpuContainer( space, capi );
+		return new SpaceTableModel(GPU.class, core, cref );
+	}
+
+	public TableModel mainboards() throws Exception {
+		MzsCore core = DefaultMzsCore.newInstance(0);
+		Capi    capi = new Capi(core);
+		URI     space = URI.create("xvsm://localhost:9877");			
+		ContainerReference cref = App.getMainboardContainer( space, capi );
+		return new SpaceTableModel(Mainboard.class, core, cref );
+	}
+
+	public TableModel ramModules() throws Exception {
+		MzsCore core = DefaultMzsCore.newInstance(0);
+		Capi    capi = new Capi(core);
+		URI     space = URI.create("xvsm://localhost:9877");			
+		ContainerReference cref = App.getRamContainer( space, capi );
+		return new SpaceTableModel(Ram.class, core, cref );
+	}
+
+	public TableModel computers() throws Exception {
+		MzsCore core = DefaultMzsCore.newInstance(0);
+		Capi    capi = new Capi(core);
+		URI     space = URI.create("xvsm://localhost:9877");			
+
+		ContainerReference cref = App.getPcContainer( space, capi );
+
+		return new SpaceTableModel(Computer.class, core, cref );
+	}
+
+	public TableModel storage() throws Exception {
+		MzsCore core = DefaultMzsCore.newInstance(0);
+		Capi    capi = new Capi(core);
+		URI     space = URI.create("xvsm://localhost:9877");			
+		ContainerReference cref = App.getStorageContainer( space, capi );
+		return new SpaceTableModel(Computer.class, core, cref );
+	}
+
+	public TableModel trash() throws Exception {
+		MzsCore core = DefaultMzsCore.newInstance(0);
+		Capi    capi = new Capi(core);
+		URI     space = URI.create("xvsm://localhost:9877");			
+		ContainerReference cref = App.getPcDefectContainer( space, capi );
+		return new SpaceTableModel(Computer.class, core, cref );
+	}
+
+	@SuppressWarnings("serial")
+	private class SpaceTableModel extends AbstractTableModel {
+
+		private final Field[]        fields;
+		private final Vector<Object> data;
+		
+		public SpaceTableModel( Class<?> clazz, MzsCore core, ContainerReference cref ) throws Exception {
+			this.fields = clazz.getFields();
+			this.data   = new Vector<Object>();
+
+			NotificationManager nManager = new NotificationManager(core);
+
+			nManager.createNotification( cref, new NotificationListener() {
+				@Override
+				public void entryOperationFinished( Notification source,
+						Operation operation, List<? extends Serializable> entries ) {
+					Serializable s = entries.get( 0 );
+
+					if ( s instanceof Entry )
+						s = ((Entry) s).getValue(); 
+
+					data.add( s );
+					SpaceTableModel.this.fireTableRowsInserted( 0, getRowCount() );
+
+					}
+				},
+				Operation.WRITE
+			);
+			nManager.createNotification( cref, new NotificationListener() {
+				@Override
+				public void entryOperationFinished( Notification source,
+						Operation operation, List<? extends Serializable> entries ) {
+					Serializable s = entries.get( 0 );
+
+					if ( s instanceof Entry )
+						s = ((Entry) s).getValue(); 
+
+					data.remove( s );
+					SpaceTableModel.this.fireTableRowsDeleted( 0, getRowCount() );
+				}
+				},
+				Operation.TAKE
+			);
+
+			//read all
+		}
+
+		@Override
+		public int getRowCount() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public int getColumnCount() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+//		@Override
+//	    public String getColumnName( int column ) {
+//			if ( column == 0 ) return "Index";
+//			column--;
+//
+//			return fields[column].getName();
+//	    }
+//
+//		@Override
+//		public int getRowCount() {
+//			return data.size();
+//		}
+//
+//		@Override
+//		public int getColumnCount() {
+//			return fields.length + 1;
+//		}
+//
+//		@Override
+//		public Object getValueAt( int rowIndex, int columnIndex ) {
+//			try {
+//				if ( columnIndex == 0 ) return rowIndex;
+//				columnIndex--;
+//
+//				if ( rowIndex    < 0 || rowIndex    >= data.size()   ) return null;
+//				if ( columnIndex < 0 || columnIndex >= fields.length ) return null;
+//
+//				return fields[columnIndex].get( data.get( rowIndex ) );
+//			} catch ( IllegalArgumentException e ) {
+//				return "ERROR: " + e;
+//			} catch ( IllegalAccessException e ) {
+//				return "ERROR: " + e;
+//			}
+//		}
 	}
 }

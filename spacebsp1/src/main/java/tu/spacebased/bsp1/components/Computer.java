@@ -33,7 +33,7 @@ public class Computer implements Serializable {
 	
 	private boolean defect;
 	
-	public Computer(int makerID, Mainboard mainboard, CPU cpu, List<Ram> ram, GPU gpu) throws BuildComputerException {
+	public Computer(Integer makerID, Mainboard mainboard, CPU cpu, List<Ram> ram, GPU gpu) throws BuildComputerException {
 		
 		// Checks for mandatory components or throw exceptions
 		if ((mainboard == null) || (cpu == null) || (ram == null)) {
@@ -55,7 +55,7 @@ public class Computer implements Serializable {
 		
 	}
 
-	public int getMakerID() {
+	public Integer getMakerID() {
 		return makerId;
 	}
 	

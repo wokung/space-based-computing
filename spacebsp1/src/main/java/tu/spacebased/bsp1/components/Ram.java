@@ -7,18 +7,18 @@ public class Ram implements Component {
 	 * 
 	 */
 	private static final long serialVersionUID = 6964427006031915666L;
-	private final int id;
+	private final String id;
 	private final String makerId;
 	private final boolean defect;
 	
 	// Constructor
-	public Ram(int ID, String makerID, boolean defect) {
+	public Ram(String ID, String makerID, boolean defect) {
 		this.id = ID;
 		this.makerId = makerID;
 		this.defect = defect;
 	}
 	
-	public int getID() {
+	public String getID() {
 		return id;
 	}
 
