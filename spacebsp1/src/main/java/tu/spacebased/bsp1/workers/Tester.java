@@ -127,7 +127,7 @@ public class Tester implements NotificationListener {
 //		
 //		// check if arguments are correct
 //		// try to insert worker id into space, exit if not unique
-//		id = firstArg;
+		id = firstArg;
 //		
 //		Entry entry = new Entry(tester.getClass(), KeyCoordinator.newCoordinationData(id.toString()));
 //        

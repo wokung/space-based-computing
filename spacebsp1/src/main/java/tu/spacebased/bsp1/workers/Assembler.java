@@ -147,7 +147,7 @@ public class Assembler extends Worker implements NotificationListener {
 		*/
 		// check if arguments are correct
 		// try to insert worker id into space, exit if not unique
-//		id = firstArg;
+		id = firstArg;
 //		
 //		Entry entry = new Entry(assembler.getClass(), KeyCoordinator.newCoordinationData(id.toString()));
 //        
@@ -181,6 +181,14 @@ public class Assembler extends Worker implements NotificationListener {
 			ArrayList<CPU>cpuList = null;
 			ArrayList<Ram>ramList = null;
 			ArrayList<GPU>gpuList = null;
+			
+			TransactionReference tx = null;
+			try {
+				tx = capi.createTransaction(5000, uri);
+			} catch (MzsCoreException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			
 			//TODO: Fix so only oldest mainboard is selected
 			//This one is trickier, we actually need FIFO and LabelSelector, this is not possible... query could work, but how?
@@ -270,6 +278,12 @@ public class Assembler extends Worker implements NotificationListener {
 				n.printStackTrace();
 			} catch (MzsCoreException e) {
 				 System.out.println("this should never happen :S");
+			}
+			try {
+				capi.commitTransaction(tx);
+			} catch (MzsCoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
